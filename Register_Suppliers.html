@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Suppliers - Pharmacy System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            background-color: #f8f9fc;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        /* Sidebar styles (same as dashboard) */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #1cc88a 0%, #138a62 100%);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            z-index: 1000;
+        }
+
+        .logo {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .logo h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .user-info i {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+
+        .user-info div {
+            flex: 1;
+        }
+
+        .user-info h3 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .user-info p {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .menu li {
+            padding: 0;
+        }
+
+        .menu li a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+        }
+
+        .menu li a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #f8f9fc;
+        }
+
+        .menu li.active a {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #f8f9fc;
+        }
+
+        .menu li a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        #logoutBtn {
+            margin-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            padding-top: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            margin-bottom: 30px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: #f8f9fc;
+            padding: 10px 15px;
+            border-radius: 50px;
+            width: 300px;
+        }
+
+        .search-bar i {
+            color: #6e707e;
+            margin-right: 10px;
+        }
+
+        .search-bar input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .date-display {
+            font-weight: 600;
+            color: #1cc88a;
+            font-size: 0.9rem;
+        }
+
+        /* Page Title */
+        .page-title {
+            color: #5a5c69;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-title i {
+            color: #1cc88a;
+        }
+
+        /* Form Container */
+        .form-container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 40px;
+        }
+
+        .form-title {
+            color: #5a5c69;
+            margin-bottom: 25px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e3e6f0;
+        }
+
+        .form-title i {
+            color: #1cc88a;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #5a5c69;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e3e6f0;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: border 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #1cc88a;
+            box-shadow: 0 0 0 3px rgba(28, 200, 138, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e3e6f0;
+        }
+
+        .btn-save {
+            background: #1cc88a;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+
+        .btn-save:hover {
+            background: #17a673;
+        }
+
+        .btn-cancel {
+            background: #858796;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .btn-cancel:hover {
+            background: #6e707e;
+        }
+
+        /* Suppliers List */
+        .suppliers-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .table-header {
+            background: linear-gradient(to right, #1cc88a, #138a62);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: #f8f9fc;
+        }
+
+        th {
+            padding: 12px 15px;
+            text-align: left;
+            color: #5a5c69;
+            font-weight: 600;
+            border-bottom: 2px solid #e3e6f0;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e3e6f0;
+            color: #858796;
+        }
+
+        tbody tr {
+            transition: background 0.3s;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fc;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #d1f7e5;
+            color: #0f5132;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: #4e73df;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .action-btn.edit {
+            background: #f6c23e;
+        }
+
+        .action-btn.edit:hover {
+            background: #f4b30d;
+        }
+
+        .action-btn.delete {
+            background: #e74a3b;
+        }
+
+        .action-btn.delete:hover {
+            background: #d52a1a;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .sidebar .logo h2,
+            .user-info div,
+            .menu li a span {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+            }
+            
+            .logo i {
+                margin-bottom: 0;
+            }
+            
+            .user-info {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .user-info i {
+                margin-right: 0;
+                font-size: 2rem;
+            }
+            
+            .menu li a {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .menu li a i {
+                margin-right: 0;
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .search-bar {
+                width: 100%;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 15px;
+            }
+            
+            .sidebar {
+                width: 60px;
+            }
+            
+            .main-content {
+                margin-left: 60px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .btn-save, .btn-cancel {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .action-btns {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-clinic-medical"></i>
+            <h2>Pharmacy Cashier</h2>
+        </div>
+        
+        <div class="user-info">
+            <i class="fas fa-user-circle"></i>
+            <div>
+                <h3 id="cashierName">Ahmed Ali</h3>
+                <p>Cashier ID: CASH-001</p>
+            </div>
+        </div>
+        
+        <ul class="menu">
+            <li><a href="Dashboard_Cashier.html"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+            <li><a href="Register_Medicines.html"><i class="fas fa-pills"></i> <span>Register Medicines</span></a></li>
+            <li class="active"><a href="Register_Suppliers.html"><i class="fas fa-truck"></i> <span>Register Suppliers</span></a></li>
+            <li><a href="Sell_Medicines_Cash_Credit.html"><i class="fas fa-shopping-cart"></i> <span>Sell Medicines</span></a></li>
+            <li><a href="Manage_Customer_Debts.html"><i class="fas fa-file-invoice-dollar"></i> <span>Customer Debts</span></a></li>
+            <li><a href="View_Own_Sales.html"><i class="fas fa-chart-line"></i> <span>View My Sales</span></a></li>
+            <li><a href="index.html" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search suppliers...">
+            </div>
+            <div class="header-actions">
+                <div class="date-display">
+                    <span id="currentDate">Loading...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <h1 class="page-title">
+            <i class="fas fa-truck"></i>
+            Register Suppliers
+        </h1>
+        
+        <!-- Supplier Registration Form -->
+        <div class="form-container">
+            <h2 class="form-title"><i class="fas fa-plus-circle"></i> Add New Supplier</h2>
+            
+            <form id="supplierForm" onsubmit="addSupplier(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="supplierName">Supplier Name *</label>
+                        <input type="text" id="supplierName" class="form-input" required placeholder="Enter supplier name">
+                    </div>
+                    <div class="form-group">
+                        <label for="companyName">Company Name</label>
+                        <input type="text" id="companyName" class="form-input" placeholder="Enter company name">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="contactPerson">Contact Person *</label>
+                        <input type="text" id="contactPerson" class="form-input" required placeholder="Enter contact person name">
+                    </div>
+                    <div class="form-group">
+                        <label for="position">Position</label>
+                        <input type="text" id="position" class="form-input" placeholder="e.g., Sales Manager">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="phone">Phone Number *</label>
+                        <input type="tel" id="phone" class="form-input" required placeholder="+252 61 123 4567">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" class="form-input" placeholder="supplier@example.com">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="address">Address</label>
+                    <input type="text" id="address" class="form-input" placeholder="Enter full address">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="city">City</label>
+                        <input type="text" id="city" class="form-input" placeholder="Enter city">
+                    </div>
+                    <div class="form-group">
+                        <label for="country">Country</label>
+                        <input type="text" id="country" class="form-input" value="Somalia" placeholder="Enter country">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taxId">Tax ID</label>
+                        <input type="text" id="taxId" class="form-input" placeholder="Enter tax identification number">
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentTerms">Payment Terms</label>
+                        <select id="paymentTerms" class="form-input">
+                            <option value="net30">Net 30 Days</option>
+                            <option value="net60">Net 60 Days</option>
+                            <option value="cod">Cash on Delivery</option>
+                            <option value="advance">Advance Payment</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="supplyCategory">Supply Category *</label>
+                        <select id="supplyCategory" class="form-input" required multiple style="height: 100px;">
+                            <option value="antibiotics">Antibiotics</option>
+                            <option value="painkillers">Painkillers</option>
+                            <option value="vitamins">Vitamins</option>
+                            <option value="diabetes">Diabetes Medicine</option>
+                            <option value="bloodpressure">Blood Pressure Medicine</option>
+                            <option value="firstaid">First Aid Supplies</option>
+                            <option value="medicalequipment">Medical Equipment</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <small style="color: #858796; font-size: 0.8rem;">Hold Ctrl/Cmd to select multiple</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" class="form-input" rows="4" placeholder="Enter additional notes about the supplier"></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="clearForm()">Clear Form</button>
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save"></i>
+                        Register Supplier
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Suppliers List -->
+        <div class="suppliers-container">
+            <div class="table-header">
+                <h3><i class="fas fa-list"></i> Registered Suppliers</h3>
+                <span style="font-size: 0.9rem;">Total: <strong id="totalSuppliers">0</strong> suppliers</span>
+            </div>
+            <table id="suppliersTable">
+                <thead>
+                    <tr>
+                        <th>Supplier ID</th>
+                        <th>Supplier Name</th>
+                        <th>Contact Person</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Supply Category</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="suppliersTableBody">
+                    <!-- Suppliers data will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Sample suppliers data
+        let suppliersData = [
+            { id: 'SUP-001', name: 'MediCorp Suppliers', company: 'MediCorp Ltd', contact: 'Ali Hassan', position: 'Sales Manager', phone: '+252 61 111 2222', email: 'ali@medicorp.com', address: 'Mogadishu, Somalia', city: 'Mogadishu', country: 'Somalia', taxId: 'TAX-001', paymentTerms: 'net30', categories: ['antibiotics', 'painkillers'], notes: 'Reliable supplier', status: 'active' },
+            { id: 'SUP-002', name: 'PharmaPlus Ltd', company: 'PharmaPlus Corporation', contact: 'Fatima Omar', position: 'Account Manager', phone: '+252 61 222 3333', email: 'fatima@pharmaplus.com', address: 'Hargeisa, Somalia', city: 'Hargeisa', country: 'Somalia', taxId: 'TAX-002', paymentTerms: 'net60', categories: ['vitamins', 'diabetes'], notes: 'Good quality products', status: 'active' },
+            { id: 'SUP-003', name: 'Global Medical', company: 'Global Medical Supplies', contact: 'Mohamed Yusuf', position: 'Director', phone: '+252 61 333 4444', email: 'mohamed@globalmedical.com', address: 'Bosaso, Somalia', city: 'Bosaso', country: 'Somalia', taxId: 'TAX-003', paymentTerms: 'cod', categories: ['medicalequipment', 'firstaid'], notes: 'International supplier', status: 'active' },
+            { id: 'SUP-004', name: 'Local Distributors', company: 'Local Medical Distributors', contact: 'Hassan Ahmed', position: 'Owner', phone: '+252 61 444 5555', email: 'hassan@localdist.com', address: 'Kismayo, Somalia', city: 'Kismayo', country: 'Somalia', taxId: 'TAX-004', paymentTerms: 'advance', categories: ['bloodpressure', 'other'], notes: 'Local supplier, quick delivery', status: 'inactive' }
+        ];
+
+        // DOM Content Loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCurrentDate();
+            loadSuppliersTable();
+            setupEventListeners();
+            generateSupplierId();
+        });
+
+        // Update current date
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        // Generate supplier ID
+        function generateSupplierId() {
+            const nextId = suppliersData.length + 1;
+            return 'SUP-' + ('000' + nextId).slice(-3);
+        }
+
+        // Load suppliers table
+        function loadSuppliersTable() {
+            const tableBody = document.getElementById('suppliersTableBody');
+            tableBody.innerHTML = '';
+
+            suppliersData.forEach(supplier => {
+                const row = document.createElement('tr');
+                
+                // Get status class
+                let statusClass = supplier.status === 'active' ? 'status-active' : 'status-inactive';
+                let statusText = supplier.status === 'active' ? 'Active' : 'Inactive';
+                
+                // Format categories
+                const categories = Array.isArray(supplier.categories) ? supplier.categories.join(', ') : supplier.categories;
+                
+                row.innerHTML = `
+                    <td>${supplier.id}</td>
+                    <td>${supplier.name}</td>
+                    <td>${supplier.contact}</td>
+                    <td>${supplier.phone}</td>
+                    <td>${supplier.email || 'N/A'}</td>
+                    <td>${categories}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn edit" onclick="editSupplier('${supplier.id}')">
+                                <i class="fas fa-edit"></i>
+                                Edit
+                            </button>
+                            <button class="action-btn delete" onclick="deleteSupplier('${supplier.id}')">
+                                <i class="fas fa-trash"></i>
+                                Delete
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Update total suppliers count
+            document.getElementById('totalSuppliers').textContent = suppliersData.length;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Search functionality
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const rows = document.querySelectorAll('#suppliersTableBody tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+        }
+
+        // Add supplier
+        function addSupplier(event) {
+            event.preventDefault();
+            
+            // Get form values
+            const name = document.getElementById('supplierName').value.trim();
+            const company = document.getElementById('companyName').value.trim();
+            const contact = document.getElementById('contactPerson').value.trim();
+            const position = document.getElementById('position').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const address = document.getElementById('address').value.trim();
+            const city = document.getElementById('city').value.trim();
+            const country = document.getElementById('country').value.trim();
+            const taxId = document.getElementById('taxId').value.trim();
+            const paymentTerms = document.getElementById('paymentTerms').value;
+            
+            // Get selected categories
+            const categorySelect = document.getElementById('supplyCategory');
+            const categories = [];
+            for (let i = 0; i < categorySelect.options.length; i++) {
+                if (categorySelect.options[i].selected) {
+                    categories.push(categorySelect.options[i].value);
+                }
+            }
+            
+            const notes = document.getElementById('notes').value.trim();
+            
+            // Create new supplier object
+            const newSupplier = {
+                id: generateSupplierId(),
+                name: name,
+                company: company,
+                contact: contact,
+                position: position,
+                phone: phone,
+                email: email,
+                address: address,
+                city: city,
+                country: country,
+                taxId: taxId,
+                paymentTerms: paymentTerms,
+                categories: categories,
+                notes: notes,
+                status: 'active'
+            };
+            
+            // Add to suppliers data
+            suppliersData.push(newSupplier);
+            
+            // Update UI
+            loadSuppliersTable();
+            
+            // Clear form
+            clearForm();
+            
+            // Show success message
+            alert(`Supplier "${name}" has been registered successfully!`);
+        }
+
+        // Edit supplier
+        function editSupplier(supplierId) {
+            const supplier = suppliersData.find(s => s.id === supplierId);
+            if (supplier) {
+                // Pre-fill form with supplier data
+                document.getElementById('supplierName').value = supplier.name;
+                document.getElementById('companyName').value = supplier.company || '';
+                document.getElementById('contactPerson').value = supplier.contact;
+                document.getElementById('position').value = supplier.position || '';
+                document.getElementById('phone').value = supplier.phone;
+                document.getElementById('email').value = supplier.email || '';
+                document.getElementById('address').value = supplier.address || '';
+                document.getElementById('city').value = supplier.city || '';
+                document.getElementById('country').value = supplier.country || '';
+                document.getElementById('taxId').value = supplier.taxId || '';
+                document.getElementById('paymentTerms').value = supplier.paymentTerms || 'net30';
+                document.getElementById('notes').value = supplier.notes || '';
+                
+                // Select categories
+                const categorySelect = document.getElementById('supplyCategory');
+                for (let i = 0; i < categorySelect.options.length; i++) {
+                    categorySelect.options[i].selected = supplier.categories.includes(categorySelect.options[i].value);
+                }
+                
+                // Change form title
+                document.querySelector('.form-title').innerHTML = `<i class="fas fa-edit"></i> Edit Supplier: ${supplier.id}`;
+                
+                // Update submit button
+                const submitBtn = document.querySelector('.btn-save');
+                submitBtn.innerHTML = `<i class="fas fa-save"></i> Update Supplier`;
+                submitBtn.onclick = function(e) {
+                    e.preventDefault();
+                    updateSupplier(supplierId);
+                };
+                
+                // Scroll to form
+                document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Update supplier
+        function updateSupplier(supplierId) {
+            const index = suppliersData.findIndex(s => s.id === supplierId);
+            if (index !== -1) {
+                // Get updated values
+                const name = document.getElementById('supplierName').value.trim();
+                const company = document.getElementById('companyName').value.trim();
+                const contact = document.getElementById('contactPerson').value.trim();
+                const position = document.getElementById('position').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const address = document.getElementById('address').value.trim();
+                const city = document.getElementById('city').value.trim();
+                const country = document.getElementById('country').value.trim();
+                const taxId = document.getElementById('taxId').value.trim();
+                const paymentTerms = document.getElementById('paymentTerms').value;
+                
+                // Get selected categories
+                const categorySelect = document.getElementById('supplyCategory');
+                const categories = [];
+                for (let i = 0; i < categorySelect.options.length; i++) {
+                    if (categorySelect.options[i].selected) {
+                        categories.push(categorySelect.options[i].value);
+                    }
+                }
+                
+                const notes = document.getElementById('notes').value.trim();
+                
+                // Update supplier data
+                suppliersData[index] = {
+                    ...suppliersData[index],
+                    name: name,
+                    company: company,
+                    contact: contact,
+                    position: position,
+                    phone: phone,
+                    email: email,
+                    address: address,
+                    city: city,
+                    country: country,
+                    taxId: taxId,
+                    paymentTerms: paymentTerms,
+                    categories: categories,
+                    notes: notes
+                };
+                
+                // Update UI
+                loadSuppliersTable();
+                
+                // Reset form
+                clearForm();
+                
+                // Show success message
+                alert(`Supplier "${name}" has been updated successfully!`);
+                
+                // Reset form for future use
+                resetForm();
+            }
+        }
+
+        // Delete supplier
+        function deleteSupplier(supplierId) {
+            if (confirm('Are you sure you want to delete this supplier?')) {
+                const index = suppliersData.findIndex(s => s.id === supplierId);
+                if (index !== -1) {
+                    const supplierName = suppliersData[index].name;
+                    suppliersData.splice(index, 1);
+                    
+                    // Update UI
+                    loadSuppliersTable();
+                    
+                    // Show success message
+                    alert(`Supplier "${supplierName}" has been deleted successfully!`);
+                }
+            }
+        }
+
+        // Clear form
+        function clearForm() {
+            document.getElementById('supplierForm').reset();
+            resetForm();
+        }
+
+        // Reset form to default state
+        function resetForm() {
+            document.querySelector('.form-title').innerHTML = `<i class="fas fa-plus-circle"></i> Add New Supplier`;
+            const submitBtn = document.querySelector('.btn-save');
+            submitBtn.innerHTML = `<i class="fas fa-save"></i> Register Supplier`;
+            submitBtn.onclick = function(e) {
+                e.preventDefault();
+                addSupplier(e);
+            };
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = 'cashier_login.html';
+            }
+        }
+
+        // Add logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            logout();
+        });
+    </script>
+</body>
+</html>

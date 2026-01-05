@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profit & Loss Analysis - Pharmacy System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            background-color: #f8f9fc;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        /* ===================== SIDEBAR STYLES ===================== */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #4e73df 0%, #224abe 100%);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            z-index: 1000;
+        }
+
+        .logo {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .logo h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .user-info i {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+
+        .user-info div {
+            flex: 1;
+        }
+
+        .user-info h3 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .user-info p {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .menu li {
+            padding: 0;
+        }
+
+        .menu li a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+        }
+
+        .menu li a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #f8f9fc;
+        }
+
+        .menu li.active a {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #f8f9fc;
+        }
+
+        .menu li a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        #logoutBtn {
+            margin-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            padding-top: 20px;
+        }
+
+        /* ===================== MAIN CONTENT STYLES ===================== */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            margin-bottom: 30px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: #f8f9fc;
+            padding: 10px 15px;
+            border-radius: 50px;
+            width: 300px;
+        }
+
+        .search-bar i {
+            color: #6e707e;
+            margin-right: 10px;
+        }
+
+        .search-bar input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .btn-notification {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #6e707e;
+            position: relative;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.3s;
+        }
+
+        .btn-notification:hover {
+            color: #4e73df;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e74a3b;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .date-display {
+            font-weight: 600;
+            color: #4e73df;
+            font-size: 0.9rem;
+        }
+
+        /* ===================== PAGE CONTENT ===================== */
+        .page-title {
+            color: #5a5c69;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-title i {
+            color: #4e73df;
+        }
+
+        /* Period Selector */
+        .period-selector {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .period-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .period-btn {
+            padding: 8px 20px;
+            border: 2px solid #e3e6f0;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .period-btn:hover {
+            border-color: #4e73df;
+            color: #4e73df;
+        }
+
+        .period-btn.active {
+            background: #4e73df;
+            color: white;
+            border-color: #4e73df;
+        }
+
+        .date-range {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .date-input {
+            padding: 8px 12px;
+            border: 1px solid #e3e6f0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .generate-btn {
+            background: #1cc88a;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+
+        .generate-btn:hover {
+            background: #17a673;
+        }
+
+        /* Summary Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .card-info h3 {
+            font-size: 0.9rem;
+            color: #858796;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .card-info h2 {
+            font-size: 1.8rem;
+            color: #5a5c69;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .card-info p {
+            font-size: 0.8rem;
+            color: #858796;
+        }
+
+        .positive {
+            color: #1cc88a;
+            font-weight: 600;
+        }
+
+        .negative {
+            color: #e74a3b;
+            font-weight: 600;
+        }
+
+        /* Charts Section */
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+        }
+
+        .chart-container h3 {
+            color: #5a5c69;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-container canvas {
+            width: 100% !important;
+            height: 300px !important;
+        }
+
+        /* Detailed Analysis */
+        .analysis-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        .income-expense-table {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+        }
+
+        .income-expense-table h3 {
+            color: #5a5c69;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table thead {
+            background-color: #f8f9fc;
+        }
+
+        table th {
+            padding: 12px 15px;
+            text-align: left;
+            color: #5a5c69;
+            font-weight: 600;
+            border-bottom: 2px solid #e3e6f0;
+        }
+
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e3e6f0;
+            color: #858796;
+        }
+
+        table tbody tr:hover {
+            background-color: #f8f9fc;
+        }
+
+        .net-profit-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .net-profit-card h3 {
+            color: #5a5c69;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .net-profit-amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .profit-margin {
+            font-size: 1rem;
+            color: #858796;
+            margin-bottom: 20px;
+        }
+
+        .trend-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e3e6f0;
+        }
+
+        .action-btn {
+            background: #4e73df;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #2e59d9;
+            transform: translateY(-2px);
+        }
+
+        .action-btn i {
+            font-size: 1.1rem;
+        }
+
+        .action-btn.green {
+            background: #1cc88a;
+        }
+
+        .action-btn.green:hover {
+            background: #17a673;
+        }
+
+        .action-btn.red {
+            background: #e74a3b;
+        }
+
+        .action-btn.red:hover {
+            background: #d52a1a;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .analysis-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .sidebar .logo h2,
+            .user-info div,
+            .menu li a span {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+            }
+            
+            .logo i {
+                margin-bottom: 0;
+            }
+            
+            .user-info {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .user-info i {
+                margin-right: 0;
+                font-size: 2rem;
+            }
+            
+            .menu li a {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .menu li a i {
+                margin-right: 0;
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .search-bar {
+                width: 100%;
+            }
+            
+            .period-selector {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .date-range {
+                width: 100%;
+            }
+            
+            .date-input {
+                flex: 1;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container canvas {
+                height: 250px !important;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 15px;
+            }
+            
+            .sidebar {
+                width: 60px;
+            }
+            
+            .main-content {
+                margin-left: 60px;
+            }
+            
+            .summary-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .card-icon {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+            
+            .period-buttons {
+                justify-content: center;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* Notification Popup */
+        .notification-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            width: 300px;
+            z-index: 1001;
+            display: none;
+            border-left: 4px solid #4e73df;
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .notification-header h4 {
+            color: #5a5c69;
+        }
+
+        .close-notification {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #858796;
+            cursor: pointer;
+        }
+
+        .notification-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #f8f9fc;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Loading Animation */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #5a5c69;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4e73df;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-clinic-medical"></i>
+            <h2>Pharmacy Admin</h2>
+        </div>
+        
+        <div class="user-info">
+            <i class="fas fa-user-circle"></i>
+            <div>
+                <h3 id="adminName">Admin User</h3>
+                <p>Profit & Loss</p>
+            </div>
+        </div>
+        
+        <ul class="menu">
+            <li><a href="Dashboard.html"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+            <li><a href="View_All_Sales.html"><i class="fas fa-chart-line"></i> <span>All Sales</span></a></li>
+            <li class="active"><a href="View_Profit_and_loss.html"><i class="fas fa-money-bill-wave"></i> <span>Profit/Loss</span></a></li>
+            <li><a href="View_Stock_Reports.html"><i class="fas fa-boxes"></i> <span>Stock Reports</span></a></li>
+            <li><a href="Expired_Medicines.html"><i class="fas fa-exclamation-triangle"></i> <span>Expired Medicines</span></a></li>
+            <li><a href="View_Cashire_Activiteis.html"><i class="fas fa-user-tie"></i> <span>Cashier Activities</span></a></li>
+            <li><a href="manege_Cashier.html"><i class="fas fa-users-cog"></i> <span>Manage Cashiers</span></a></li>
+            <li><a href="setting.html"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+            <li><a href="index.html" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search analysis reports...">
+            </div>
+            <div class="header-actions">
+                <button class="btn-notification" id="notificationBtn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">2</span>
+                </button>
+                <div class="date-display">
+                    <span id="currentDate">Loading...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Notification Popup -->
+        <div class="notification-popup" id="notificationPopup">
+            <div class="notification-header">
+                <h4>Profit Alerts (2)</h4>
+                <button class="close-notification" id="closeNotification">&times;</button>
+            </div>
+            <div class="notification-item">
+                <strong>Profit Increase:</strong> 15% higher than last month
+            </div>
+            <div class="notification-item">
+                <strong>Expense Alert:</strong> Rent increased by 5%
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <h1 class="page-title">
+            <i class="fas fa-money-bill-wave"></i>
+            Profit & Loss Analysis
+        </h1>
+        
+        <!-- Period Selector -->
+        <div class="period-selector">
+            <div class="period-buttons">
+                <button class="period-btn active" data-period="today">Today</button>
+                <button class="period-btn" data-period="week">This Week</button>
+                <button class="period-btn" data-period="month">This Month</button>
+                <button class="period-btn" data-period="quarter">This Quarter</button>
+                <button class="period-btn" data-period="year">This Year</button>
+            </div>
+            <div class="date-range">
+                <input type="date" class="date-input" id="startDate" value="2024-01-01">
+                <span>to</span>
+                <input type="date" class="date-input" id="endDate" value="2024-01-31">
+                <button class="generate-btn" onclick="generateReport()">
+                    <i class="fas fa-sync-alt"></i>
+                    Generate
+                </button>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+            <div class="summary-card">
+                <div class="card-icon" style="background-color: #1cc88a;">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Total Revenue</h3>
+                    <h2 id="totalRevenue">$124,850</h2>
+                    <p><span class="positive">+15%</span> from last month</p>
+                </div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="card-icon" style="background-color: #e74a3b;">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Total Expenses</h3>
+                    <h2 id="totalExpenses">$89,620</h2>
+                    <p><span class="negative">+5%</span> from last month</p>
+                </div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="card-icon" style="background-color: #4e73df;">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Gross Profit</h3>
+                    <h2 id="grossProfit">$35,230</h2>
+                    <p><span class="positive">+25%</span> from last month</p>
+                </div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="card-icon" style="background-color: #f6c23e;">
+                    <i class="fas fa-percentage"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Profit Margin</h3>
+                    <h2 id="profitMargin">28.2%</h2>
+                    <p><span class="positive">+2.5%</span> from last month</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="chart-container">
+                <h3><i class="fas fa-chart-bar"></i> Revenue vs Expenses Trend</h3>
+                <canvas id="revenueExpensesChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <h3><i class="fas fa-chart-pie"></i> Expense Breakdown</h3>
+                <canvas id="expenseBreakdownChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Detailed Analysis -->
+        <div class="analysis-section">
+            <div class="income-expense-table">
+                <h3><i class="fas fa-list"></i> Detailed Income & Expenses</h3>
+                <table id="incomeExpenseTable">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Amount</th>
+                            <th>% of Total</th>
+                            <th>Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="net-profit-card">
+                <h3><i class="fas fa-trophy"></i> Net Profit</h3>
+                <div class="net-profit-amount" id="netProfitAmount" style="color: #1cc88a;">$35,230</div>
+                <div class="profit-margin">Profit Margin: <span id="profitMarginPercent">28.2%</span></div>
+                <div class="trend-indicator positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>Profitable</span>
+                </div>
+                <div style="margin-top: 20px; font-size: 0.9rem; color: #858796;">
+                    <p>Based on selected period</p>
+                    <p>Last updated: <span id="lastUpdated">Today, 10:30 AM</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="action-btn green" onclick="exportToPDF()">
+                <i class="fas fa-file-pdf"></i>
+                Export as PDF
+            </button>
+            <button class="action-btn" onclick="exportToExcel()">
+                <i class="fas fa-file-excel"></i>
+                Export to Excel
+            </button>
+            <button class="action-btn" onclick="printReport()">
+                <i class="fas fa-print"></i>
+                Print Report
+            </button>
+            <button class="action-btn red" onclick="emailReport()">
+                <i class="fas fa-envelope"></i>
+                Email Report
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Sample Financial Data
+        const financialData = {
+            today: {
+                revenue: 2450,
+                expenses: 1850,
+                profit: 600,
+                margin: 24.5,
+                categories: [
+                    { name: 'Medicine Sales', amount: 1800, type: 'income' },
+                    { name: 'Other Products', amount: 650, type: 'income' },
+                    { name: 'Medicine Cost', amount: 1200, type: 'expense' },
+                    { name: 'Staff Salaries', amount: 450, type: 'expense' },
+                    { name: 'Utilities', amount: 150, type: 'expense' },
+                    { name: 'Rent', amount: 50, type: 'expense' }
+                ]
+            },
+            week: {
+                revenue: 12450,
+                expenses: 8960,
+                profit: 3490,
+                margin: 28.0,
+                categories: [
+                    { name: 'Medicine Sales', amount: 9200, type: 'income' },
+                    { name: 'Other Products', amount: 3250, type: 'income' },
+                    { name: 'Medicine Cost', amount: 6000, type: 'expense' },
+                    { name: 'Staff Salaries', amount: 2100, type: 'expense' },
+                    { name: 'Utilities', amount: 650, type: 'expense' },
+                    { name: 'Rent', amount: 210, type: 'expense' }
+                ]
+            },
+            month: {
+                revenue: 124850,
+                expenses: 89620,
+                profit: 35230,
+                margin: 28.2,
+                categories: [
+                    { name: 'Medicine Sales', amount: 92000, type: 'income' },
+                    { name: 'Other Products', amount: 32850, type: 'income' },
+                    { name: 'Medicine Cost', amount: 60000, type: 'expense' },
+                    { name: 'Staff Salaries', amount: 21000, type: 'expense' },
+                    { name: 'Utilities', amount: 6500, type: 'expense' },
+                    { name: 'Rent', amount: 2120, type: 'expense' }
+                ]
+            }
+        };
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+            loadCharts();
+            updateFinancialData('month');
+            setupEventListeners();
+        });
+
+        function initializePage() {
+            const adminName = localStorage.getItem('adminName') || 'Admin User';
+            document.getElementById('adminName').textContent = adminName;
+            
+            updateDateTime();
+            // Update time every minute
+            setInterval(updateDateTime, 60000);
+            
+            // Set default dates
+            const today = new Date();
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            document.getElementById('startDate').value = firstDay.toISOString().split('T')[0];
+            document.getElementById('endDate').value = today.toISOString().split('T')[0];
+        }
+
+        function setupEventListeners() {
+            // Period buttons
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const period = this.getAttribute('data-period');
+                    
+                    // Update active button
+                    document.querySelectorAll('.period-btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    // Update data
+                    updateFinancialData(period);
+                    showNotification(`Showing ${period} analysis`);
+                });
+            });
+
+            // Notification button
+            document.getElementById('notificationBtn').addEventListener('click', toggleNotifications);
+            document.getElementById('closeNotification').addEventListener('click', toggleNotifications);
+
+            // Search input
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                searchAnalysis(e.target.value);
+            });
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            const dateElement = document.getElementById('currentDate');
+            if (dateElement) {
+                dateElement.textContent = now.toLocaleDateString('en-US', options);
+            }
+        }
+
+        function updateFinancialData(period) {
+            const data = financialData[period] || financialData.month;
+            
+            // Update summary cards
+            document.getElementById('totalRevenue').textContent = '$' + data.revenue.toLocaleString();
+            document.getElementById('totalExpenses').textContent = '$' + data.expenses.toLocaleString();
+            document.getElementById('grossProfit').textContent = '$' + data.profit.toLocaleString();
+            document.getElementById('profitMargin').textContent = data.margin + '%';
+            
+            // Update net profit
+            document.getElementById('netProfitAmount').textContent = '$' + data.profit.toLocaleString();
+            document.getElementById('profitMarginPercent').textContent = data.margin + '%';
+            
+            // Update last updated time
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            // Update table
+            updateIncomeExpenseTable(data.categories, data.revenue, data.expenses);
+            
+            // Update charts
+            updateCharts(data);
+        }
+
+        function updateIncomeExpenseTable(categories, totalRevenue, totalExpenses) {
+            const tbody = document.querySelector('#incomeExpenseTable tbody');
+            tbody.innerHTML = '';
+            
+            // Add income items
+            const incomeItems = categories.filter(item => item.type === 'income');
+            incomeItems.forEach(item => {
+                const percentage = ((item.amount / totalRevenue) * 100).toFixed(1);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><i class="fas fa-arrow-up" style="color: #1cc88a; margin-right: 5px;"></i> ${item.name}</td>
+                    <td style="color: #1cc88a; font-weight: 600;">$${item.amount.toLocaleString()}</td>
+                    <td>${percentage}%</td>
+                    <td><span class="positive">+12%</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // Add separator
+            const separatorRow = document.createElement('tr');
+            separatorRow.innerHTML = `<td colspan="4" style="padding: 10px; background: #f8f9fc;"></td>`;
+            tbody.appendChild(separatorRow);
+            
+            // Add expense items
+            const expenseItems = categories.filter(item => item.type === 'expense');
+            expenseItems.forEach(item => {
+                const percentage = ((item.amount / totalExpenses) * 100).toFixed(1);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><i class="fas fa-arrow-down" style="color: #e74a3b; margin-right: 5px;"></i> ${item.name}</td>
+                    <td style="color: #e74a3b; font-weight: 600;">$${item.amount.toLocaleString()}</td>
+                    <td>${percentage}%</td>
+                    <td><span class="negative">+5%</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function loadCharts() {
+            // Revenue vs Expenses Chart
+            const revenueExpensesCtx = document.getElementById('revenueExpensesChart');
+            if (revenueExpensesCtx) {
+                window.revenueExpensesChart = new Chart(revenueExpensesCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                        datasets: [
+                            {
+                                label: 'Revenue',
+                                data: [95000, 105000, 115000, 108000, 124000, 130000, 124850],
+                                borderColor: '#1cc88a',
+                                backgroundColor: 'rgba(28, 200, 138, 0.1)',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Expenses',
+                                data: [72000, 78000, 82000, 79000, 85000, 88000, 89620],
+                                borderColor: '#e74a3b',
+                                backgroundColor: 'rgba(231, 74, 59, 0.1)',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value.toLocaleString();
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Expense Breakdown Chart
+            const expenseBreakdownCtx = document.getElementById('expenseBreakdownChart');
+            if (expenseBreakdownCtx) {
+                window.expenseBreakdownChart = new Chart(expenseBreakdownCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Medicine Cost', 'Staff Salaries', 'Utilities', 'Rent', 'Other'],
+                        datasets: [{
+                            data: [60000, 21000, 6500, 2120, 0],
+                            backgroundColor: [
+                                '#4e73df',
+                                '#1cc88a',
+                                '#f6c23e',
+                                '#e74a3b',
+                                '#36b9cc'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function updateCharts(data) {
+            if (window.revenueExpensesChart) {
+                // Update last data point based on period
+                const lastIndex = window.revenueExpensesChart.data.datasets[0].data.length - 1;
+                window.revenueExpensesChart.data.datasets[0].data[lastIndex] = data.revenue;
+                window.revenueExpensesChart.data.datasets[1].data[lastIndex] = data.expenses;
+                window.revenueExpensesChart.update();
+            }
+            
+            if (window.expenseBreakdownChart) {
+                // Update expense breakdown
+                const expenseItems = data.categories.filter(item => item.type === 'expense');
+                window.expenseBreakdownChart.data.datasets[0].data = expenseItems.map(item => item.amount);
+                window.expenseBreakdownChart.update();
+            }
+        }
+
+        function generateReport() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            showNotification('Generating custom report...');
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Calculate custom period data (simplified)
+                const daysDiff = Math.floor((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1;
+                const dailyRevenue = financialData.month.revenue / 30;
+                const dailyExpenses = financialData.month.expenses / 30;
+                
+                const customData = {
+                    revenue: Math.round(dailyRevenue * daysDiff),
+                    expenses: Math.round(dailyExpenses * daysDiff),
+                    profit: Math.round((dailyRevenue - dailyExpenses) * daysDiff),
+                    margin: ((dailyRevenue - dailyExpenses) / dailyRevenue * 100).toFixed(1)
+                };
+                
+                // Update display
+                document.getElementById('totalRevenue').textContent = '$' + customData.revenue.toLocaleString();
+                document.getElementById('totalExpenses').textContent = '$' + customData.expenses.toLocaleString();
+                document.getElementById('grossProfit').textContent = '$' + customData.profit.toLocaleString();
+                document.getElementById('profitMargin').textContent = customData.margin + '%';
+                document.getElementById('netProfitAmount').textContent = '$' + customData.profit.toLocaleString();
+                document.getElementById('profitMarginPercent').textContent = customData.margin + '%';
+                
+                showNotification(`Report generated for ${startDate} to ${endDate}`);
+            }, 1000);
+        }
+
+        function searchAnalysis(query) {
+            if (query.length > 2) {
+                console.log('Searching analysis for:', query);
+                // In real app, this would filter data
+            }
+        }
+
+        function exportToPDF() {
+            showNotification('Generating PDF report...');
+            setTimeout(() => {
+                showNotification('PDF report downloaded successfully');
+            }, 1500);
+        }
+
+        function exportToExcel() {
+            showNotification('Exporting to Excel...');
+            setTimeout(() => {
+                showNotification('Excel file downloaded successfully');
+            }, 1500);
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function emailReport() {
+            const email = prompt('Enter email address to send report:');
+            if (email) {
+                showNotification(`Sending report to ${email}...`);
+                setTimeout(() => {
+                    showNotification('Report sent successfully');
+                }, 1500);
+            }
+        }
+
+        function toggleNotifications() {
+            const popup = document.getElementById('notificationPopup');
+            if (!popup) return;
+            
+            popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+            
+            if (popup.style.display === 'block') {
+                const badge = document.querySelector('.notification-badge');
+                if (badge) {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification-popup';
+            notification.style.position = 'fixed';
+            notification.style.bottom = '20px';
+            notification.style.right = '20px';
+            notification.style.top = 'auto';
+            notification.style.animation = 'slideIn 0.3s ease';
+            notification.innerHTML = `
+                <div style="padding: 15px;">
+                    <i class="fas fa-info-circle" style="margin-right: 8px; color: #4e73df;"></i> ${message}
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Add CSS animation if not exists
+            if (!document.querySelector('#notificationAnim')) {
+                const style = document.createElement('style');
+                style.id = 'notificationAnim';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Auto-update data occasionally
+        setInterval(() => {
+            // Randomly update revenue and expenses
+            if (Math.random() > 0.5) {
+                const revenueElement = document.getElementById('totalRevenue');
+                const expenseElement = document.getElementById('totalExpenses');
+                const profitElement = document.getElementById('grossProfit');
+                const netProfitElement = document.getElementById('netProfitAmount');
+                
+                if (revenueElement && expenseElement && profitElement && netProfitElement) {
+                    const currentRevenue = parseInt(revenueElement.textContent.replace('$', '').replace(',', ''));
+                    const currentExpenses = parseInt(expenseElement.textContent.replace('$', '').replace(',', ''));
+                    const randomChange = Math.floor(Math.random() * 2000) - 1000;
+                    
+                    const newRevenue = Math.max(100000, currentRevenue + randomChange);
+                    const newExpenses = Math.max(70000, currentExpenses + randomChange / 2);
+                    const newProfit = newRevenue - newExpenses;
+                    const newMargin = ((newProfit / newRevenue) * 100).toFixed(1);
+                    
+                    revenueElement.textContent = '$' + newRevenue.toLocaleString();
+                    expenseElement.textContent = '$' + newExpenses.toLocaleString();
+                    profitElement.textContent = '$' + newProfit.toLocaleString();
+                    netProfitElement.textContent = '$' + newProfit.toLocaleString();
+                    document.getElementById('profitMargin').textContent = newMargin + '%';
+                    document.getElementById('profitMarginPercent').textContent = newMargin + '%';
+                    
+                    // Update net profit color based on profit
+                    netProfitElement.style.color = newProfit > 0 ? '#1cc88a' : '#e74a3b';
+                }
+            }
+        }, 30000); // Update every 30 seconds
+    </script>
+</body>
+</html>

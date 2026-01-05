@@ -1,0 +1,1729 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cashier Activities - Pharmacy System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            background-color: #f8f9fc;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        /* ===================== SIDEBAR STYLES ===================== */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #4e73df 0%, #224abe 100%);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            z-index: 1000;
+        }
+
+        .logo {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .logo h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .user-info i {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+
+        .user-info div {
+            flex: 1;
+        }
+
+        .user-info h3 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .user-info p {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .menu li {
+            padding: 0;
+        }
+
+        .menu li a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+        }
+
+        .menu li a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #f8f9fc;
+        }
+
+        .menu li.active a {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #f8f9fc;
+        }
+
+        .menu li a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        #logoutBtn {
+            margin-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            padding-top: 20px;
+        }
+
+        /* ===================== MAIN CONTENT STYLES ===================== */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            margin-bottom: 30px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: #f8f9fc;
+            padding: 10px 15px;
+            border-radius: 50px;
+            width: 300px;
+        }
+
+        .search-bar i {
+            color: #6e707e;
+            margin-right: 10px;
+        }
+
+        .search-bar input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .btn-notification {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #6e707e;
+            position: relative;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.3s;
+        }
+
+        .btn-notification:hover {
+            color: #4e73df;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e74a3b;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .date-display {
+            font-weight: 600;
+            color: #4e73df;
+            font-size: 0.9rem;
+        }
+
+        /* ===================== PAGE CONTENT ===================== */
+        .page-title {
+            color: #5a5c69;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-title i {
+            color: #4e73df;
+        }
+
+        /* Live Activity Monitor */
+        .live-monitor {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            margin-bottom: 30px;
+            border-left: 4px solid #4e73df;
+        }
+
+        .monitor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .monitor-header h3 {
+            color: #5a5c69;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #1cc88a;
+            font-weight: 600;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #1cc88a;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .monitor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .monitor-card {
+            background: #f8f9fc;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .monitor-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .monitor-card h4 {
+            color: #858796;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .monitor-card .value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #5a5c69;
+            margin-bottom: 5px;
+        }
+
+        .monitor-card .subtext {
+            font-size: 0.8rem;
+            color: #858796;
+        }
+
+        /* Summary Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+            font-size: 1.3rem;
+        }
+
+        .card-info h3 {
+            font-size: 0.85rem;
+            color: #858796;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .card-info h2 {
+            font-size: 1.5rem;
+            color: #5a5c69;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .card-info p {
+            font-size: 0.75rem;
+            color: #858796;
+        }
+
+        /* Controls Section */
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-input {
+            padding: 10px 15px;
+            border: 1px solid #e3e6f0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            min-width: 150px;
+        }
+
+        .action-btn {
+            background: #4e73df;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: #2e59d9;
+            transform: translateY(-2px);
+        }
+
+        .action-btn.green {
+            background: #1cc88a;
+        }
+
+        .action-btn.green:hover {
+            background: #17a673;
+        }
+
+        .action-btn.orange {
+            background: #f6c23e;
+        }
+
+        .action-btn.orange:hover {
+            background: #f4b30d;
+        }
+
+        .action-btn.red {
+            background: #e74a3b;
+        }
+
+        .action-btn.red:hover {
+            background: #d52a1a;
+        }
+
+        /* Cashier Activities Table */
+        .activities-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 40px;
+        }
+
+        .table-header {
+            background: linear-gradient(to right, #4e73df, #224abe);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: #f8f9fc;
+        }
+
+        th {
+            padding: 12px 15px;
+            text-align: left;
+            color: #5a5c69;
+            font-weight: 600;
+            border-bottom: 2px solid #e3e6f0;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e3e6f0;
+            color: #858796;
+        }
+
+        tbody tr {
+            transition: background 0.3s;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fc;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: #d1f7e5;
+            color: #0f5132;
+        }
+
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .cashier-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* Charts Section */
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+        }
+
+        .chart-container h3 {
+            color: #5a5c69;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-container canvas {
+            width: 100% !important;
+            height: 300px !important;
+        }
+
+        /* Performance Stats */
+        .performance-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .performance-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+        }
+
+        .performance-card h3 {
+            color: #5a5c69;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .performance-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f8f9fc;
+        }
+
+        .performance-item:last-child {
+            border-bottom: none;
+        }
+
+        .performance-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .performance-name {
+            font-weight: 500;
+            color: #5a5c69;
+        }
+
+        .performance-value {
+            font-weight: 600;
+            color: #5a5c69;
+        }
+
+        .performance-change {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .change-positive {
+            color: #1cc88a;
+        }
+
+        .change-negative {
+            color: #e74a3b;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e3e6f0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .performance-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .sidebar .logo h2,
+            .user-info div,
+            .menu li a span {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+            }
+            
+            .logo i {
+                margin-bottom: 0;
+            }
+            
+            .user-info {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .user-info i {
+                margin-right: 0;
+                font-size: 2rem;
+            }
+            
+            .menu li a {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .menu li a i {
+                margin-right: 0;
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .search-bar {
+                width: 100%;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .filter-group {
+                width: 100%;
+            }
+            
+            .filter-input {
+                flex: 1;
+                min-width: auto;
+            }
+            
+            .summary-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .monitor-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .chart-container canvas {
+                height: 250px !important;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 15px;
+            }
+            
+            .sidebar {
+                width: 60px;
+            }
+            
+            .main-content {
+                margin-left: 60px;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .monitor-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .card-icon {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+
+        /* Notification Popup */
+        .notification-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            width: 300px;
+            z-index: 1001;
+            display: none;
+            border-left: 4px solid #4e73df;
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .notification-header h4 {
+            color: #5a5c69;
+        }
+
+        .close-notification {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #858796;
+            cursor: pointer;
+        }
+
+        .notification-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #f8f9fc;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Loading Animation */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #5a5c69;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4e73df;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Print Styles */
+        @media print {
+            .sidebar, .top-bar, .controls, .action-btn, .live-monitor, .bulk-actions {
+                display: none !important;
+            }
+            
+            .main-content {
+                margin-left: 0 !important;
+                padding: 0 !important;
+            }
+            
+            .activities-container, .chart-container, .performance-card {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-clinic-medical"></i>
+            <h2>Pharmacy Admin</h2>
+        </div>
+        
+        <div class="user-info">
+            <i class="fas fa-user-circle"></i>
+            <div>
+                <h3 id="adminName">Admin User</h3>
+                <p>Cashier Monitor</p>
+            </div>
+        </div>
+        
+        <ul class="menu">
+            <li><a href="Dashboard.html"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+            <li><a href="View_All_Sales.html"><i class="fas fa-chart-line"></i> <span>All Sales</span></a></li>
+            <li><a href="View_Profit_and_loss.html"><i class="fas fa-money-bill-wave"></i> <span>Profit/Loss</span></a></li>
+            <li><a href="View_Stock_Reports.html"><i class="fas fa-boxes"></i> <span>Stock Reports</span></a></li>
+            <li><a href="Expired_Medicines.html"><i class="fas fa-exclamation-triangle"></i> <span>Expired Medicines</span></a></li>
+            <li class="active"><a href="#"><i class="fas fa-user-tie"></i> <span>Cashier Activities</span></a></li>
+            <li><a href="manege_Cashier.html"><i class="fas fa-users-cog"></i> <span>Manage Cashiers</span></a></li>
+            <li><a href="setting.html"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+            <li><a href="index.html" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search cashier activities...">
+            </div>
+            <div class="header-actions">
+                <button class="btn-notification" id="notificationBtn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">5</span>
+                </button>
+                <div class="date-display">
+                    <span id="currentDate">Loading...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Notification Popup -->
+        <div class="notification-popup" id="notificationPopup">
+            <div class="notification-header">
+                <h4>Cashier Alerts (5)</h4>
+                <button class="close-notification" id="closeNotification">&times;</button>
+            </div>
+            <div class="notification-item">
+                <strong>High Sale:</strong> Ahmed made $450 sale
+            </div>
+            <div class="notification-item">
+                <strong>Shift Change:</strong> Fatima started morning shift
+            </div>
+            <div class="notification-item">
+                <strong>Error Alert:</strong> Omar had void transaction
+            </div>
+            <div class="notification-item">
+                <strong>Performance:</strong> Khadija exceeded daily target
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <h1 class="page-title">
+            <i class="fas fa-user-tie"></i>
+            Cashier Activities Monitor
+        </h1>
+        
+        <!-- Live Activity Monitor -->
+        <div class="live-monitor">
+            <div class="monitor-header">
+                <h3><i class="fas fa-tv"></i> Live Activity Monitor</h3>
+                <div class="live-indicator">
+                    <div class="live-dot"></div>
+                    <span>LIVE</span>
+                </div>
+            </div>
+            <div class="monitor-grid">
+                <div class="monitor-card">
+                    <h4>Active Cashiers</h4>
+                    <div class="value" id="activeCashiers">4</div>
+                    <div class="subtext">Currently working</div>
+                </div>
+                <div class="monitor-card">
+                    <h4>Today's Transactions</h4>
+                    <div class="value" id="todayTransactions">124</div>
+                    <div class="subtext">Total sales today</div>
+                </div>
+                <div class="monitor-card">
+                    <h4>Total Sales Today</h4>
+                    <div class="value" id="totalSalesToday">$12,450</div>
+                    <div class="subtext">Revenue generated</div>
+                </div>
+                <div class="monitor-card">
+                    <h4>Avg Transaction</h4>
+                    <div class="value" id="avgTransaction">$100.40</div>
+                    <div class="subtext">Per sale average</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+            <div class="summary-card" onclick="filterByCashier('all')">
+                <div class="card-icon" style="background-color: #4e73df;">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Total Cashiers</h3>
+                    <h2 id="totalCashiers">12</h2>
+                    <p>Registered in system</p>
+                </div>
+            </div>
+            
+            <div class="summary-card" onclick="filterByShift('morning')">
+                <div class="card-icon" style="background-color: #1cc88a;">
+                    <i class="fas fa-sun"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Morning Shift</h3>
+                    <h2 id="morningShift">6</h2>
+                    <p>8:00 AM - 4:00 PM</p>
+                </div>
+            </div>
+            
+            <div class="summary-card" onclick="filterByShift('evening')">
+                <div class="card-icon" style="background-color: #f6c23e;">
+                    <i class="fas fa-moon"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Evening Shift</h3>
+                    <h2 id="eveningShift">4</h2>
+                    <p>4:00 PM - 12:00 AM</p>
+                </div>
+            </div>
+            
+            <div class="summary-card" onclick="viewPerformanceReport()">
+                <div class="card-icon" style="background-color: #e74a3b;">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Errors Today</h3>
+                    <h2 id="errorsToday">3</h2>
+                    <p>Voids & corrections</p>
+                </div>
+            </div>
+            
+            <div class="summary-card" onclick="viewAttendanceReport()">
+                <div class="card-icon" style="background-color: #36b9cc;">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Attendance Rate</h3>
+                    <h2 id="attendanceRate">94%</h2>
+                    <p>This month</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="filter-group">
+                <select class="filter-input" id="cashierFilter">
+                    <option value="">All Cashiers</option>
+                    <option value="ahmed">Ahmed Ali</option>
+                    <option value="fatima">Fatima Hassan</option>
+                    <option value="omar">Omar Yusuf</option>
+                    <option value="khadija">Khadija Ahmed</option>
+                    <option value="mohamed">Mohamed Ibrahim</option>
+                </select>
+                
+                <select class="filter-input" id="activityFilter">
+                    <option value="">All Activities</option>
+                    <option value="sale">Sales</option>
+                    <option value="return">Returns</option>
+                    <option value="void">Voids</option>
+                    <option value="stock">Stock Updates</option>
+                    <option value="customer">Customer Service</option>
+                </select>
+                
+                <select class="filter-input" id="shiftFilter">
+                    <option value="">All Shifts</option>
+                    <option value="morning">Morning (8AM-4PM)</option>
+                    <option value="evening">Evening (4PM-12AM)</option>
+                    <option value="night">Night (12AM-8AM)</option>
+                </select>
+                
+                <input type="date" class="filter-input" id="dateFilter" value="2024-01-31">
+            </div>
+            <div class="filter-group">
+                <button class="action-btn" onclick="applyFilters()">
+                    <i class="fas fa-filter"></i>
+                    Apply Filters
+                </button>
+                <button class="action-btn green" onclick="generatePerformanceReport()">
+                    <i class="fas fa-chart-bar"></i>
+                    Performance Report
+                </button>
+                <button class="action-btn orange" onclick="exportActivities()">
+                    <i class="fas fa-download"></i>
+                    Export Data
+                </button>
+                <button class="action-btn" onclick="printReport()">
+                    <i class="fas fa-print"></i>
+                    Print
+                </button>
+            </div>
+        </div>
+
+        <!-- Cashier Activities Table -->
+        <div class="activities-container">
+            <div class="table-header">
+                <h3><i class="fas fa-history"></i> Recent Cashier Activities</h3>
+                <span style="font-size: 0.9rem;">Last updated: <span id="lastUpdated">Just now</span></span>
+            </div>
+            <table id="activitiesTable">
+                <thead>
+                    <tr>
+                        <th>Cashier</th>
+                        <th>Activity Type</th>
+                        <th>Details</th>
+                        <th>Amount</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th>Shift</th>
+                    </tr>
+                </thead>
+                <tbody id="activitiesTableBody">
+                    <!-- Activities data will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="chart-container">
+                <h3><i class="fas fa-chart-line"></i> Cashier Performance (Last 7 Days)</h3>
+                <canvas id="performanceChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <h3><i class="fas fa-chart-pie"></i> Activity Distribution</h3>
+                <canvas id="activityDistributionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Performance Stats -->
+        <div class="performance-stats">
+            <div class="performance-card">
+                <h3><i class="fas fa-trophy"></i> Top Performers (Today)</h3>
+                <div id="topPerformers">
+                    <!-- Top performers will be loaded here -->
+                </div>
+            </div>
+            
+            <div class="performance-card">
+                <h3><i class="fas fa-bolt"></i> Shift Performance</h3>
+                <div id="shiftPerformance">
+                    <!-- Shift performance will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="action-btn" onclick="viewAllCashiers()">
+                <i class="fas fa-list"></i>
+                View All Cashiers
+            </button>
+            <button class="action-btn green" onclick="scheduleShift()">
+                <i class="fas fa-calendar-alt"></i>
+                Schedule Shift
+            </button>
+            <button class="action-btn orange" onclick="sendAnnouncement()">
+                <i class="fas fa-bullhorn"></i>
+                Send Announcement
+            </button>
+            <button class="action-btn red" onclick="viewSuspiciousActivities()">
+                <i class="fas fa-shield-alt"></i>
+                Security Review
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Sample Cashier Activities Data
+        const cashierActivities = [
+            { id: 1, cashier: 'Ahmed Ali', type: 'sale', details: 'Medicine Sale - Paracetamol, Ibuprofen', amount: 245.50, time: '10:30 AM', status: 'success', shift: 'morning' },
+            { id: 2, cashier: 'Fatima Hassan', type: 'stock', details: 'Updated stock - Added 50 Vitamin C bottles', amount: 0, time: '09:15 AM', status: 'info', shift: 'morning' },
+            { id: 3, cashier: 'Omar Yusuf', type: 'return', details: 'Customer return - Wrong medicine purchased', amount: 45.50, time: 'Yesterday 2:45 PM', status: 'warning', shift: 'evening' },
+            { id: 4, cashier: 'Khadija Ahmed', type: 'sale', details: 'Large sale - Medical equipment', amount: 1200.00, time: 'Yesterday 11:20 AM', status: 'success', shift: 'morning' },
+            { id: 5, cashier: 'Mohamed Ibrahim', type: 'void', details: 'Void transaction - System error', amount: 89.99, time: '2 days ago', status: 'error', shift: 'evening' },
+            { id: 6, cashier: 'Ahmed Ali', type: 'sale', details: 'Regular sale - Various medicines', amount: 325.25, time: '2 days ago', status: 'success', shift: 'morning' },
+            { id: 7, cashier: 'Fatima Hassan', type: 'customer', details: 'New customer registration', amount: 0, time: '3 days ago', status: 'info', shift: 'morning' },
+            { id: 8, cashier: 'Omar Yusuf', type: 'sale', details: 'Credit payment received', amount: 150.00, time: '3 days ago', status: 'success', shift: 'evening' },
+            { id: 9, cashier: 'Khadija Ahmed', type: 'stock', details: 'Low stock alert handled', amount: 0, time: '4 days ago', status: 'info', shift: 'morning' },
+            { id: 10, cashier: 'Mohamed Ibrahim', type: 'sale', details: 'Medicine sale - Antibiotics', amount: 420.80, time: '4 days ago', status: 'success', shift: 'evening' },
+            { id: 11, cashier: 'Ahmed Ali', type: 'sale', details: 'Multiple item sale', amount: 670.25, time: '5 days ago', status: 'success', shift: 'morning' },
+            { id: 12, cashier: 'Fatima Hassan', type: 'return', details: 'Expired medicine return', amount: 25.50, time: '5 days ago', status: 'warning', shift: 'morning' },
+            { id: 13, cashier: 'Omar Yusuf', type: 'customer', details: 'Customer complaint resolved', amount: 0, time: '6 days ago', status: 'info', shift: 'evening' },
+            { id: 14, cashier: 'Khadija Ahmed', type: 'sale', details: 'Prescription medicine sale', amount: 210.40, time: '6 days ago', status: 'success', shift: 'morning' },
+            { id: 15, cashier: 'Mohamed Ibrahim', type: 'void', details: 'Price correction', amount: 15.00, time: '1 week ago', status: 'error', shift: 'evening' }
+        ];
+
+        // Cashier information
+        const cashiers = [
+            { id: 'ahmed', name: 'Ahmed Ali', shift: 'morning', status: 'active', salesToday: 2450, transactions: 28 },
+            { id: 'fatima', name: 'Fatima Hassan', shift: 'morning', status: 'active', salesToday: 1850, transactions: 32 },
+            { id: 'omar', name: 'Omar Yusuf', shift: 'evening', status: 'inactive', salesToday: 0, transactions: 0 },
+            { id: 'khadija', name: 'Khadija Ahmed', shift: 'morning', status: 'active', salesToday: 3120, transactions: 35 },
+            { id: 'mohamed', name: 'Mohamed Ibrahim', shift: 'evening', status: 'active', salesToday: 890, transactions: 15 },
+            { id: 'yusuf', name: 'Yusuf Omar', shift: 'night', status: 'inactive', salesToday: 0, transactions: 0 }
+        ];
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+            loadCashierActivities();
+            updateLiveMonitor();
+            loadCharts();
+            loadPerformanceStats();
+            setupEventListeners();
+            
+            // Start live updates
+            startLiveUpdates();
+        });
+
+        function initializePage() {
+            const adminName = localStorage.getItem('adminName') || 'Admin User';
+            document.getElementById('adminName').textContent = adminName;
+            
+            updateDateTime();
+            setInterval(updateDateTime, 60000);
+            
+            // Set today's date in filter
+            const today = new Date();
+            document.getElementById('dateFilter').value = today.toISOString().split('T')[0];
+        }
+
+        function setupEventListeners() {
+            // Notification button
+            document.getElementById('notificationBtn').addEventListener('click', toggleNotifications);
+            document.getElementById('closeNotification').addEventListener('click', toggleNotifications);
+
+            // Search input
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                searchActivities(e.target.value);
+            });
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            const dateElement = document.getElementById('currentDate');
+            if (dateElement) {
+                dateElement.textContent = now.toLocaleDateString('en-US', options);
+            }
+            
+            // Update last updated time
+            document.getElementById('lastUpdated').textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+
+        function updateLiveMonitor() {
+            // Calculate live metrics
+            const activeCashiers = cashiers.filter(c => c.status === 'active').length;
+            const totalCashiers = cashiers.length;
+            
+            const morningShift = cashiers.filter(c => c.shift === 'morning').length;
+            const eveningShift = cashiers.filter(c => c.shift === 'evening').length;
+            
+            const todayTransactions = cashierActivities.filter(a => 
+                a.time.includes('AM') || a.time.includes('PM') || a.time.includes('Today')
+            ).length;
+            
+            const totalSalesToday = cashiers.reduce((total, c) => total + c.salesToday, 0);
+            const avgTransaction = totalSalesToday > 0 ? totalSalesToday / todayTransactions : 0;
+            
+            const errorsToday = cashierActivities.filter(a => 
+                a.status === 'error' && (a.time.includes('AM') || a.time.includes('PM') || a.time.includes('Today'))
+            ).length;
+            
+            // Update monitor
+            document.getElementById('activeCashiers').textContent = activeCashiers;
+            document.getElementById('totalCashiers').textContent = totalCashiers;
+            document.getElementById('morningShift').textContent = morningShift;
+            document.getElementById('eveningShift').textContent = eveningShift;
+            document.getElementById('todayTransactions').textContent = todayTransactions;
+            document.getElementById('totalSalesToday').textContent = '$' + totalSalesToday.toLocaleString();
+            document.getElementById('avgTransaction').textContent = '$' + avgTransaction.toFixed(2);
+            document.getElementById('errorsToday').textContent = errorsToday;
+            document.getElementById('attendanceRate').textContent = '94%';
+        }
+
+        function loadCashierActivities(filteredData = cashierActivities) {
+            const tbody = document.getElementById('activitiesTableBody');
+            tbody.innerHTML = '';
+            
+            filteredData.forEach(activity => {
+                const statusClass = `status-${activity.status}`;
+                const avatarInitial = activity.cashier.charAt(0);
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div class="cashier-avatar">${avatarInitial}</div>
+                            <span>${activity.cashier}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span style="display: flex; align-items: center; gap: 5px;">
+                            ${getActivityIcon(activity.type)}
+                            ${getActivityType(activity.type)}
+                        </span>
+                    </td>
+                    <td>${activity.details}</td>
+                    <td>
+                        ${activity.amount > 0 ? `<strong style="color: #5a5c69;">$${activity.amount.toFixed(2)}</strong>` : '--'}
+                    </td>
+                    <td>${activity.time}</td>
+                    <td><span class="status-badge ${statusClass}">${activity.status.toUpperCase()}</span></td>
+                    <td>
+                        <span style="display: flex; align-items: center; gap: 5px;">
+                            ${getShiftIcon(activity.shift)}
+                            ${activity.shift.charAt(0).toUpperCase() + activity.shift.slice(1)}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function getActivityIcon(type) {
+            switch(type) {
+                case 'sale': return '<i class="fas fa-shopping-cart text-success"></i>';
+                case 'return': return '<i class="fas fa-undo text-warning"></i>';
+                case 'void': return '<i class="fas fa-ban text-danger"></i>';
+                case 'stock': return '<i class="fas fa-boxes text-info"></i>';
+                case 'customer': return '<i class="fas fa-user text-primary"></i>';
+                default: return '<i class="fas fa-circle text-muted"></i>';
+            }
+        }
+
+        function getActivityType(type) {
+            switch(type) {
+                case 'sale': return 'Sale';
+                case 'return': return 'Return';
+                case 'void': return 'Void';
+                case 'stock': return 'Stock Update';
+                case 'customer': return 'Customer Service';
+                default: return 'Other';
+            }
+        }
+
+        function getShiftIcon(shift) {
+            switch(shift) {
+                case 'morning': return '<i class="fas fa-sun text-warning"></i>';
+                case 'evening': return '<i class="fas fa-moon text-info"></i>';
+                case 'night': return '<i class="fas fa-star text-muted"></i>';
+                default: return '<i class="fas fa-clock text-muted"></i>';
+            }
+        }
+
+        function loadCharts() {
+            // Performance Chart
+            const performanceCtx = document.getElementById('performanceChart');
+            if (performanceCtx) {
+                window.performanceChart = new Chart(performanceCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [
+                            {
+                                label: 'Ahmed Ali',
+                                data: [1250, 1450, 980, 1650, 1420, 1100, 1550],
+                                borderColor: '#4e73df',
+                                backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Fatima Hassan',
+                                data: [980, 1120, 850, 1320, 1150, 920, 1420],
+                                borderColor: '#1cc88a',
+                                backgroundColor: 'rgba(28, 200, 138, 0.1)',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Omar Yusuf',
+                                data: [750, 820, 680, 950, 880, 720, 920],
+                                borderColor: '#f6c23e',
+                                backgroundColor: 'rgba(246, 194, 62, 0.1)',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value.toLocaleString();
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Activity Distribution Chart
+            const activityDistributionCtx = document.getElementById('activityDistributionChart');
+            if (activityDistributionCtx) {
+                window.activityDistributionChart = new Chart(activityDistributionCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Sales', 'Returns', 'Voids', 'Stock Updates', 'Customer Service'],
+                        datasets: [{
+                            data: [65, 12, 8, 10, 5],
+                            backgroundColor: [
+                                '#1cc88a',
+                                '#f6c23e',
+                                '#e74a3b',
+                                '#4e73df',
+                                '#36b9cc'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function loadPerformanceStats() {
+            // Top Performers
+            const topPerformersContainer = document.getElementById('topPerformers');
+            const sortedCashiers = [...cashiers].sort((a, b) => b.salesToday - a.salesToday).slice(0, 3);
+            
+            topPerformersContainer.innerHTML = '';
+            sortedCashiers.forEach((cashier, index) => {
+                const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉';
+                const performanceItem = document.createElement('div');
+                performanceItem.className = 'performance-item';
+                performanceItem.innerHTML = `
+                    <div class="performance-info">
+                        <span style="font-size: 1.2rem;">${medal}</span>
+                        <div>
+                            <div class="performance-name">${cashier.name}</div>
+                            <div style="font-size: 0.8rem; color: #858796;">${cashier.transactions} transactions</div>
+                        </div>
+                    </div>
+                    <div class="performance-value">$${cashier.salesToday.toLocaleString()}</div>
+                `;
+                topPerformersContainer.appendChild(performanceItem);
+            });
+
+            // Shift Performance
+            const shiftPerformanceContainer = document.getElementById('shiftPerformance');
+            
+            const morningSales = cashiers.filter(c => c.shift === 'morning').reduce((total, c) => total + c.salesToday, 0);
+            const eveningSales = cashiers.filter(c => c.shift === 'evening').reduce((total, c) => total + c.salesToday, 0);
+            const nightSales = cashiers.filter(c => c.shift === 'night').reduce((total, c) => total + c.salesToday, 0);
+            
+            shiftPerformanceContainer.innerHTML = `
+                <div class="performance-item">
+                    <div class="performance-info">
+                        <i class="fas fa-sun text-warning"></i>
+                        <div class="performance-name">Morning Shift</div>
+                    </div>
+                    <div class="performance-value">$${morningSales.toLocaleString()}</div>
+                </div>
+                <div class="performance-item">
+                    <div class="performance-info">
+                        <i class="fas fa-moon text-info"></i>
+                        <div class="performance-name">Evening Shift</div>
+                    </div>
+                    <div class="performance-value">$${eveningSales.toLocaleString()}</div>
+                </div>
+                <div class="performance-item">
+                    <div class="performance-info">
+                        <i class="fas fa-star text-muted"></i>
+                        <div class="performance-name">Night Shift</div>
+                    </div>
+                    <div class="performance-value">$${nightSales.toLocaleString()}</div>
+                </div>
+            `;
+        }
+
+        function searchActivities(query) {
+            if (query.length === 0) {
+                loadCashierActivities();
+                return;
+            }
+            
+            const filteredData = cashierActivities.filter(activity => 
+                activity.cashier.toLowerCase().includes(query.toLowerCase()) ||
+                activity.details.toLowerCase().includes(query.toLowerCase()) ||
+                activity.type.toLowerCase().includes(query.toLowerCase()) ||
+                activity.shift.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            loadCashierActivities(filteredData);
+            
+            if (filteredData.length === 0) {
+                const tbody = document.getElementById('activitiesTableBody');
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #858796;">
+                            <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                            No activities found matching "${query}"
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function applyFilters() {
+            const cashier = document.getElementById('cashierFilter').value;
+            const activity = document.getElementById('activityFilter').value;
+            const shift = document.getElementById('shiftFilter').value;
+            const date = document.getElementById('dateFilter').value;
+            
+            // Show loading
+            const tbody = document.getElementById('activitiesTableBody');
+            tbody.innerHTML = '<tr><td colspan="7"><div class="loading"><div class="spinner"></div>Loading filtered data...</div></td></tr>';
+            
+            // Simulate API call
+            setTimeout(() => {
+                let filteredData = cashierActivities;
+                
+                // Apply cashier filter
+                if (cashier) {
+                    filteredData = filteredData.filter(activity => {
+                        const cashierMap = {
+                            'ahmed': 'Ahmed Ali',
+                            'fatima': 'Fatima Hassan',
+                            'omar': 'Omar Yusuf',
+                            'khadija': 'Khadija Ahmed',
+                            'mohamed': 'Mohamed Ibrahim'
+                        };
+                        return activity.cashier === cashierMap[cashier];
+                    });
+                }
+                
+                // Apply activity filter
+                if (activity) {
+                    filteredData = filteredData.filter(a => a.type === activity);
+                }
+                
+                // Apply shift filter
+                if (shift) {
+                    filteredData = filteredData.filter(a => a.shift === shift);
+                }
+                
+                // Apply date filter (simplified - in real app would compare dates)
+                if (date) {
+                    // For demo, just filter recent activities
+                    filteredData = filteredData.filter(a => 
+                        !a.time.includes('week') && !a.time.includes('days')
+                    );
+                }
+                
+                // Display filtered data
+                loadCashierActivities(filteredData);
+                showNotification(`Showing ${filteredData.length} activities with selected filters`);
+            }, 1000);
+        }
+
+        function filterByCashier(cashier) {
+            document.getElementById('cashierFilter').value = cashier;
+            applyFilters();
+        }
+
+        function filterByShift(shift) {
+            document.getElementById('shiftFilter').value = shift;
+            applyFilters();
+        }
+
+        function viewPerformanceReport() {
+            alert('Performance Report:\n\nToday\'s Errors: 3\n\nBreakdown:\n1. Mohamed Ibrahim - Void transaction ($89.99)\n2. Mohamed Ibrahim - Price correction ($15.00)\n3. Omar Yusuf - Customer return ($45.50)\n\nAction Required: Review Mohamed\'s training');
+        }
+
+        function viewAttendanceReport() {
+            alert('Attendance Report (This Month):\n\nTotal Cashiers: 12\nPresent: 11 (91.7%)\nAbsent: 1 (8.3%)\nLate: 2 (16.7%)\n\nTrend: Improving from last month (88%)');
+        }
+
+        function generatePerformanceReport() {
+            showNotification('Generating performance report...');
+            setTimeout(() => {
+                showNotification('Performance report generated and saved');
+                // In real app, this would generate PDF/Excel report
+            }, 1500);
+        }
+
+        function exportActivities() {
+            showNotification('Exporting activities data...');
+            setTimeout(() => {
+                showNotification('Activities data exported to Excel');
+            }, 1500);
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function viewAllCashiers() {
+            showNotification('Opening cashier management...');
+            // In real app, this would navigate to cashier management page
+        }
+
+        function scheduleShift() {
+            const schedule = prompt('Enter shift schedule details (e.g., Ahmed - Morning, Fatima - Evening):');
+            if (schedule) {
+                showNotification('Shift schedule updated: ' + schedule);
+            }
+        }
+
+        function sendAnnouncement() {
+            const announcement = prompt('Enter announcement to send to all cashiers:');
+            if (announcement) {
+                showNotification('Announcement sent to all cashiers: ' + announcement);
+            }
+        }
+
+        function viewSuspiciousActivities() {
+            alert('Suspicious Activities Report:\n\n1. Multiple voids by Mohamed Ibrahim\n2. Unusually high returns by Omar Yusuf\n3. Late night login by Yusuf Omar\n\nRecommendation: Schedule security review meeting');
+        }
+
+        function startLiveUpdates() {
+            // Simulate live updates every 30 seconds
+            setInterval(() => {
+                // Add new random activity
+                const cashiersList = ['Ahmed Ali', 'Fatima Hassan', 'Omar Yusuf', 'Khadija Ahmed', 'Mohamed Ibrahim'];
+                const types = ['sale', 'return', 'void', 'stock', 'customer'];
+                const shifts = ['morning', 'evening'];
+                const statuses = ['success', 'warning', 'error', 'info'];
+                
+                const newActivity = {
+                    id: cashierActivities.length + 1,
+                    cashier: cashiersList[Math.floor(Math.random() * cashiersList.length)],
+                    type: types[Math.floor(Math.random() * types.length)],
+                    details: generateRandomDetails(),
+                    amount: Math.random() > 0.3 ? Math.random() * 500 : 0,
+                    time: 'Just now',
+                    status: statuses[Math.floor(Math.random() * statuses.length)],
+                    shift: shifts[Math.floor(Math.random() * shifts.length)]
+                };
+                
+                // Add to beginning of array
+                cashierActivities.unshift(newActivity);
+                
+                // Reload table with new activity
+                loadCashierActivities();
+                updateLiveMonitor();
+                
+                // Show notification for significant activities
+                if (newActivity.amount > 300 || newActivity.status === 'error') {
+                    showNotification(`New activity: ${newActivity.cashier} - ${newActivity.type} ($${newActivity.amount.toFixed(2)})`);
+                }
+            }, 30000); // Every 30 seconds
+        }
+
+        function generateRandomDetails() {
+            const details = [
+                'Medicine sale - Regular customer',
+                'Stock update - Received new shipment',
+                'Customer return - Changed mind',
+                'Void transaction - Double scan',
+                'New customer registration',
+                'Prescription medicine sale',
+                'Expired medicine return',
+                'Price inquiry handled',
+                'Discount applied to sale',
+                'Customer complaint resolved'
+            ];
+            return details[Math.floor(Math.random() * details.length)];
+        }
+
+        function toggleNotifications() {
+            const popup = document.getElementById('notificationPopup');
+            if (!popup) return;
+            
+            popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+            
+            if (popup.style.display === 'block') {
+                const badge = document.querySelector('.notification-badge');
+                if (badge) {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification-popup';
+            notification.style.position = 'fixed';
+            notification.style.bottom = '20px';
+            notification.style.right = '20px';
+            notification.style.top = 'auto';
+            notification.style.animation = 'slideIn 0.3s ease';
+            notification.innerHTML = `
+                <div style="padding: 15px;">
+                    <i class="fas fa-info-circle" style="margin-right: 8px; color: #4e73df;"></i> ${message}
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Add CSS animation if not exists
+            if (!document.querySelector('#notificationAnim')) {
+                const style = document.createElement('style');
+                style.id = 'notificationAnim';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Update charts periodically
+        setInterval(() => {
+            if (window.performanceChart) {
+                // Update random data point
+                const datasetIndex = Math.floor(Math.random() * window.performanceChart.data.datasets.length);
+                const dataIndex = Math.floor(Math.random() * window.performanceChart.data.datasets[datasetIndex].data.length);
+                const change = Math.floor(Math.random() * 200) - 100;
+                
+                window.performanceChart.data.datasets[datasetIndex].data[dataIndex] = 
+                    Math.max(500, window.performanceChart.data.datasets[datasetIndex].data[dataIndex] + change);
+                window.performanceChart.update();
+            }
+        }, 60000); // Update every minute
+    </script>
+</body>
+</html>

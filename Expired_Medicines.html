@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expired Medicines - Pharmacy System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            background-color: #f8f9fc;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        /* ===================== SIDEBAR STYLES ===================== */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #4e73df 0%, #224abe 100%);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            z-index: 1000;
+        }
+
+        .logo {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .logo h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .user-info i {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+
+        .user-info div {
+            flex: 1;
+        }
+
+        .user-info h3 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .user-info p {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .menu li {
+            padding: 0;
+        }
+
+        .menu li a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+        }
+
+        .menu li a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #f8f9fc;
+        }
+
+        .menu li.active a {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #f8f9fc;
+        }
+
+        .menu li a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        #logoutBtn {
+            margin-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            padding-top: 20px;
+        }
+
+        /* ===================== MAIN CONTENT STYLES ===================== */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            margin-bottom: 30px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: #f8f9fc;
+            padding: 10px 15px;
+            border-radius: 50px;
+            width: 300px;
+        }
+
+        .search-bar i {
+            color: #6e707e;
+            margin-right: 10px;
+        }
+
+        .search-bar input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .btn-notification {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #6e707e;
+            position: relative;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.3s;
+        }
+
+        .btn-notification:hover {
+            color: #4e73df;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e74a3b;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .date-display {
+            font-weight: 600;
+            color: #4e73df;
+            font-size: 0.9rem;
+        }
+
+        /* ===================== PAGE CONTENT ===================== */
+        .page-title {
+            color: #5a5c69;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-title i {
+            color: #e74a3b;
+        }
+
+        /* Alert Banner */
+        .alert-banner {
+            background: linear-gradient(to right, #e74a3b, #dc3545);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(231, 74, 59, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 4px 15px rgba(231, 74, 59, 0.2); }
+            50% { box-shadow: 0 4px 25px rgba(231, 74, 59, 0.4); }
+            100% { box-shadow: 0 4px 15px rgba(231, 74, 59, 0.2); }
+        }
+
+        .alert-banner-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .alert-banner i {
+            font-size: 2rem;
+        }
+
+        .alert-banner h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .alert-banner p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .dismiss-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .dismiss-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Summary Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+            font-size: 1.3rem;
+        }
+
+        .card-info h3 {
+            font-size: 0.85rem;
+            color: #858796;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .card-info h2 {
+            font-size: 1.5rem;
+            color: #5a5c69;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .card-info p {
+            font-size: 0.75rem;
+            color: #858796;
+        }
+
+        /* Controls Section */
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-input {
+            padding: 10px 15px;
+            border: 1px solid #e3e6f0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            min-width: 150px;
+        }
+
+        .action-btn {
+            background: #4e73df;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: #2e59d9;
+            transform: translateY(-2px);
+        }
+
+        .action-btn.red {
+            background: #e74a3b;
+        }
+
+        .action-btn.red:hover {
+            background: #d52a1a;
+        }
+
+        .action-btn.green {
+            background: #1cc88a;
+        }
+
+        .action-btn.green:hover {
+            background: #17a673;
+        }
+
+        .action-btn.orange {
+            background: #f6c23e;
+        }
+
+        .action-btn.orange:hover {
+            background: #f4b30d;
+        }
+
+        /* Expired Medicines Table */
+        .expired-table-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 40px;
+        }
+
+        .table-header {
+            background: linear-gradient(to right, #e74a3b, #dc3545);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: #f8f9fc;
+        }
+
+        th {
+            padding: 12px 15px;
+            text-align: left;
+            color: #5a5c69;
+            font-weight: 600;
+            border-bottom: 2px solid #e3e6f0;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e3e6f0;
+            color: #858796;
+        }
+
+        tbody tr {
+            transition: background 0.3s;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fc;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-expired {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-safe {
+            background: #d1f7e5;
+            color: #0f5132;
+        }
+
+        .days-counter {
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .days-expired {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .days-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .days-safe {
+            background: #d1f7e5;
+            color: #0f5132;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-icon-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .action-icon-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Charts Section */
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+        }
+
+        .chart-container h3 {
+            color: #5a5c69;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-container canvas {
+            width: 100% !important;
+            height: 300px !important;
+        }
+
+        /* Action Plan */
+        .action-plan {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            margin-bottom: 40px;
+        }
+
+        .action-plan h3 {
+            color: #5a5c69;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .action-step {
+            background: #f8f9fc;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #4e73df;
+        }
+
+        .action-step h4 {
+            color: #5a5c69;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-step p {
+            color: #858796;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Bulk Actions */
+        .bulk-actions {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+        }
+
+        .bulk-actions h3 {
+            color: #5a5c69;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bulk-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-steps {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .sidebar .logo h2,
+            .user-info div,
+            .menu li a span {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+            }
+            
+            .logo i {
+                margin-bottom: 0;
+            }
+            
+            .user-info {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .user-info i {
+                margin-right: 0;
+                font-size: 2rem;
+            }
+            
+            .menu li a {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .menu li a i {
+                margin-right: 0;
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .search-bar {
+                width: 100%;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .filter-group {
+                width: 100%;
+            }
+            
+            .filter-input {
+                flex: 1;
+                min-width: auto;
+            }
+            
+            .summary-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .chart-container canvas {
+                height: 250px !important;
+            }
+            
+            .action-steps {
+                grid-template-columns: 1fr;
+            }
+            
+            .bulk-buttons {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 15px;
+            }
+            
+            .sidebar {
+                width: 60px;
+            }
+            
+            .main-content {
+                margin-left: 60px;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .card-icon {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+            
+            .alert-banner {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+
+        /* Notification Popup */
+        .notification-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            width: 300px;
+            z-index: 1001;
+            display: none;
+            border-left: 4px solid #4e73df;
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .notification-header h4 {
+            color: #5a5c69;
+        }
+
+        .close-notification {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #858796;
+            cursor: pointer;
+        }
+
+        .notification-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #f8f9fc;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Loading Animation */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #5a5c69;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4e73df;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Print Styles */
+        @media print {
+            .sidebar, .top-bar, .controls, .action-btn, .alert-banner, .bulk-actions {
+                display: none !important;
+            }
+            
+            .main-content {
+                margin-left: 0 !important;
+                padding: 0 !important;
+            }
+            
+            .expired-table-container, .chart-container, .action-plan {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-clinic-medical"></i>
+            <h2>Pharmacy Admin</h2>
+        </div>
+        
+        <div class="user-info">
+            <i class="fas fa-user-circle"></i>
+            <div>
+                <h3 id="adminName">Admin User</h3>
+                <p>Expired Medicines</p>
+            </div>
+        </div>
+        
+        <ul class="menu">
+            <li><a href="Dashboard.html"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+            <li><a href="View_All_Sales.html"><i class="fas fa-chart-line"></i> <span>All Sales</span></a></li>
+            <li><a href="View_Profit_and_loss.html"><i class="fas fa-money-bill-wave"></i> <span>Profit/Loss</span></a></li>
+            <li><a href="View_Stock_Reports.html"><i class="fas fa-boxes"></i> <span>Stock Reports</span></a></li>
+            <li class="active"><a href="Expired_Medicines.html"><i class="fas fa-exclamation-triangle"></i> <span>Expired Medicines</span></a></li>
+            <li><a href="View_Cashire_Activiteis.html"><i class="fas fa-user-tie"></i> <span>Cashier Activities</span></a></li>
+            <li><a href="manege_Cashier.html"><i class="fas fa-users-cog"></i> <span>Manage Cashiers</span></a></li>
+            <li><a href="setting.html"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+            <li><a href="index.html" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search expired medicines...">
+            </div>
+            <div class="header-actions">
+                <button class="btn-notification" id="notificationBtn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">8</span>
+                </button>
+                <div class="date-display">
+                    <span id="currentDate">Loading...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Notification Popup -->
+        <div class="notification-popup" id="notificationPopup">
+            <div class="notification-header">
+                <h4>Expiry Alerts (8)</h4>
+                <button class="close-notification" id="closeNotification">&times;</button>
+            </div>
+            <div class="notification-item">
+                <strong>Critical:</strong> 5 medicines expired yesterday
+            </div>
+            <div class="notification-item">
+                <strong>Warning:</strong> 12 medicines expiring this week
+            </div>
+            <div class="notification-item">
+                <strong>Action Required:</strong> $2,450 worth of expired stock
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <h1 class="page-title">
+            <i class="fas fa-exclamation-triangle"></i>
+            Expired Medicines Alert System
+        </h1>
+        
+        <!-- Alert Banner -->
+        <div class="alert-banner" id="alertBanner">
+            <div class="alert-banner-content">
+                <i class="fas fa-skull-crossbones"></i>
+                <div>
+                    <h3>URGENT ACTION REQUIRED</h3>
+                    <p>You have 17 expired medicines in inventory worth $3,280. These must be removed immediately to comply with regulations.</p>
+                </div>
+            </div>
+            <button class="dismiss-btn" onclick="dismissAlert()">
+                <i class="fas fa-times"></i> Dismiss
+            </button>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+            <div class="summary-card" onclick="filterByStatus('expired')">
+                <div class="card-icon" style="background-color: #e74a3b;">
+                    <i class="fas fa-skull-crossbones"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Already Expired</h3>
+                    <h2 id="expiredCount">17</h2>
+                    <p>Past expiry date</p>
+                </div>
+            </div>
+            
+            <div class="summary-card" onclick="filterByStatus('this_week')">
+                <div class="card-icon" style="background-color: #f6c23e;">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Expiring This Week</h3>
+                    <h2 id="expiringThisWeek">12</h2>
+                    <p>Within 7 days</p>
+                </div>
+            </div>
+            
+            <div class="summary-card" onclick="filterByStatus('this_month')">
+                <div class="card-icon" style="background-color: #36b9cc;">
+                    <i class="fas fa-calendar-week"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Expiring This Month</h3>
+                    <h2 id="expiringThisMonth">28</h2>
+                    <p>Within 30 days</p>
+                </div>
+            </div>
+            
+            <div class="summary-card" onclick="filterByCategory('all')">
+                <div class="card-icon" style="background-color: #1cc88a;">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Total Value at Risk</h3>
+                    <h2 id="totalValueAtRisk">$5,820</h2>
+                    <p>Potentially lost</p>
+                </div>
+            </div>
+            
+            <div class="summary-card" onclick="showRecoveryReport()">
+                <div class="card-icon" style="background-color: #4e73df;">
+                    <i class="fas fa-recycle"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Recovered Value</h3>
+                    <h2 id="recoveredValue">$1,450</h2>
+                    <p>Returned to suppliers</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="filter-group">
+                <select class="filter-input" id="categoryFilter">
+                    <option value="">All Categories</option>
+                    <option value="painkillers">Painkillers</option>
+                    <option value="antibiotics">Antibiotics</option>
+                    <option value="vitamins">Vitamins</option>
+                    <option value="cold_cough">Cold & Cough</option>
+                    <option value="first_aid">First Aid</option>
+                </select>
+                
+                <select class="filter-input" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="expired">Already Expired</option>
+                    <option value="critical">Critical (1-3 days)</option>
+                    <option value="warning">Warning (4-7 days)</option>
+                    <option value="notice">Notice (8-30 days)</option>
+                    <option value="safe">Safe (30+ days)</option>
+                </select>
+                
+                <select class="filter-input" id="supplierFilter">
+                    <option value="">All Suppliers</option>
+                    <option value="pharma_corp">Pharma Corp</option>
+                    <option value="med_supply">Medical Supply Co.</option>
+                    <option value="health_plus">Health Plus</option>
+                    <option value="global_pharma">Global Pharma</option>
+                </select>
+                
+                <input type="date" class="filter-input" id="dateFilter" value="2024-01-31">
+            </div>
+            <div class="filter-group">
+                <button class="action-btn" onclick="applyFilters()">
+                    <i class="fas fa-filter"></i>
+                    Apply Filters
+                </button>
+                <button class="action-btn red" onclick="markAllExpired()">
+                    <i class="fas fa-trash"></i>
+                    Mark All Expired
+                </button>
+                <button class="action-btn green" onclick="generateReturnList()">
+                    <i class="fas fa-file-export"></i>
+                    Return List
+                </button>
+                <button class="action-btn" onclick="printReport()">
+                    <i class="fas fa-print"></i>
+                    Print Report
+                </button>
+            </div>
+        </div>
+
+        <!-- Expired Medicines Table -->
+        <div class="expired-table-container">
+            <div class="table-header">
+                <h3><i class="fas fa-list"></i> Expired & Near-Expiry Medicines</h3>
+                <span style="font-size: 0.9rem;">Total: <strong id="totalMedicinesCount">57</strong> items</span>
+            </div>
+            <table id="expiredTable">
+                <thead>
+                    <tr>
+                        <th>Medicine Name</th>
+                        <th>Batch No</th>
+                        <th>Category</th>
+                        <th>Quantity</th>
+                        <th>Expiry Date</th>
+                        <th>Days Left</th>
+                        <th>Status</th>
+                        <th>Value</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="expiredTableBody">
+                    <!-- Expired medicines data will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="chart-container">
+                <h3><i class="fas fa-chart-bar"></i> Expiry Timeline (Next 90 Days)</h3>
+                <canvas id="expiryTimelineChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <h3><i class="fas fa-chart-pie"></i> Expired by Category</h3>
+                <canvas id="categoryExpiryChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Action Plan -->
+        <div class="action-plan">
+            <h3><i class="fas fa-clipboard-list"></i> Recommended Action Plan</h3>
+            <div class="action-steps">
+                <div class="action-step">
+                    <h4><i class="fas fa-trash text-danger"></i> Immediate Removal</h4>
+                    <p>Remove all expired medicines from shelves immediately to prevent accidental sale.</p>
+                </div>
+                <div class="action-step">
+                    <h4><i class="fas fa-phone text-warning"></i> Contact Suppliers</h4>
+                    <p>Contact suppliers for expired items that may be eligible for return or credit.</p>
+                </div>
+                <div class="action-step">
+                    <h4><i class="fas fa-bullhorn text-info"></i> Discount Sales</h4>
+                    <p>Create discount sales for medicines expiring within 30 days to minimize losses.</p>
+                </div>
+                <div class="action-step">
+                    <h4><i class="fas fa-chart-line text-success"></i> Stock Review</h4>
+                    <p>Review purchasing patterns to prevent future overstocking of perishable items.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bulk Actions -->
+        <div class="bulk-actions">
+            <h3><i class="fas fa-tasks"></i> Bulk Actions</h3>
+            <div class="bulk-buttons">
+                <button class="action-btn orange" onclick="selectAllExpired()">
+                    <i class="fas fa-check-square"></i>
+                    Select All Expired
+                </button>
+                <button class="action-btn" onclick="generateSupplierReport()">
+                    <i class="fas fa-file-invoice"></i>
+                    Supplier Report
+                </button>
+                <button class="action-btn red" onclick="confirmDestruction()">
+                    <i class="fas fa-fire"></i>
+                    Schedule Destruction
+                </button>
+                <button class="action-btn green" onclick="requestSupplierCredit()">
+                    <i class="fas fa-hand-holding-usd"></i>
+                    Request Credit
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample Expired Medicines Data
+        const expiredMedicines = [
+            { id: 1, name: 'Paracetamol 500mg', batch: 'PC-2023-05', category: 'Painkillers', quantity: 45, expiry: '2024-01-15', purchasePrice: 2.5, supplier: 'pharma_corp', status: 'expired' },
+            { id: 2, name: 'Amoxicillin 250mg', batch: 'AM-2023-08', category: 'Antibiotics', quantity: 32, expiry: '2024-01-20', purchasePrice: 3.2, supplier: 'pharma_corp', status: 'expired' },
+            { id: 3, name: 'Vitamin C 1000mg', batch: 'VC-2023-05', category: 'Vitamins', quantity: 25, expiry: '2024-01-25', purchasePrice: 4.5, supplier: 'health_plus', status: 'expired' },
+            { id: 4, name: 'Ibuprofen 400mg', batch: 'IB-2023-08', category: 'Painkillers', quantity: 18, expiry: '2024-01-28', purchasePrice: 3.0, supplier: 'med_supply', status: 'expired' },
+            { id: 5, name: 'Cetirizine 10mg', batch: 'CT-2023-10', category: 'Allergy', quantity: 55, expiry: '2024-01-30', purchasePrice: 1.8, supplier: 'pharma_corp', status: 'expired' },
+            { id: 6, name: 'Cough Syrup 100ml', batch: 'CS-2023-09', category: 'Cold & Cough', quantity: 12, expiry: '2024-02-02', purchasePrice: 4.2, supplier: 'pharma_corp', status: 'critical' },
+            { id: 7, name: 'Antiseptic Cream', batch: 'AC-2023-11', category: 'First Aid', quantity: 28, expiry: '2024-02-05', purchasePrice: 3.5, supplier: 'med_supply', status: 'critical' },
+            { id: 8, name: 'Multivitamin Complex', batch: 'MV-2023-07', category: 'Vitamins', quantity: 35, expiry: '2024-02-10', purchasePrice: 6.5, supplier: 'health_plus', status: 'warning' },
+            { id: 9, name: 'Aspirin 75mg', batch: 'AS-2023-08', category: 'Painkillers', quantity: 42, expiry: '2024-02-15', purchasePrice: 2.0, supplier: 'pharma_corp', status: 'warning' },
+            { id: 10, name: 'Eye Drops 10ml', batch: 'ED-2023-12', category: 'Eye Care', quantity: 15, expiry: '2024-02-20', purchasePrice: 3.8, supplier: 'pharma_corp', status: 'notice' },
+            { id: 11, name: 'Omeprazole 20mg', batch: 'OM-2023-09', category: 'Digestive', quantity: 38, expiry: '2024-02-25', purchasePrice: 2.8, supplier: 'med_supply', status: 'notice' },
+            { id: 12, name: 'Diabetes Test Strips', batch: 'DT-2023-08', category: 'Equipment', quantity: 85, expiry: '2024-03-01', purchasePrice: 8.0, supplier: 'med_supply', status: 'notice' },
+            { id: 13, name: 'Thermometer Digital', batch: 'TH-2023-06', category: 'Equipment', quantity: 8, expiry: '2024-03-05', purchasePrice: 12.5, supplier: 'med_supply', status: 'safe' },
+            { id: 14, name: 'Bandages (Pack of 10)', batch: 'BD-2023-10', category: 'First Aid', quantity: 120, expiry: '2024-03-10', purchasePrice: 5.0, supplier: 'health_plus', status: 'safe' },
+            { id: 15, name: 'Blood Pressure Monitor', batch: 'BP-2023-05', category: 'Equipment', quantity: 5, expiry: '2024-03-15', purchasePrice: 45.0, supplier: 'health_plus', status: 'safe' }
+        ];
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+            loadExpiredMedicines();
+            updateSummaryCards();
+            loadCharts();
+            setupEventListeners();
+        });
+
+        function initializePage() {
+            const adminName = localStorage.getItem('adminName') || 'Admin User';
+            document.getElementById('adminName').textContent = adminName;
+            
+            updateDateTime();
+            setInterval(updateDateTime, 60000);
+            
+            // Set today's date in filter
+            const today = new Date();
+            document.getElementById('dateFilter').value = today.toISOString().split('T')[0];
+        }
+
+        function setupEventListeners() {
+            // Notification button
+            document.getElementById('notificationBtn').addEventListener('click', toggleNotifications);
+            document.getElementById('closeNotification').addEventListener('click', toggleNotifications);
+
+            // Search input
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                searchMedicines(e.target.value);
+            });
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            const dateElement = document.getElementById('currentDate');
+            if (dateElement) {
+                dateElement.textContent = now.toLocaleDateString('en-US', options);
+            }
+        }
+
+        function calculateDaysLeft(expiryDate) {
+            const today = new Date();
+            const expiry = new Date(expiryDate);
+            const diffTime = expiry - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
+
+        function getExpiryStatus(expiryDate) {
+            const daysLeft = calculateDaysLeft(expiryDate);
+            
+            if (daysLeft < 0) return 'expired';
+            if (daysLeft <= 3) return 'critical';
+            if (daysLeft <= 7) return 'warning';
+            if (daysLeft <= 30) return 'notice';
+            return 'safe';
+        }
+
+        function getStatusClass(status) {
+            switch(status) {
+                case 'expired': return 'status-expired';
+                case 'critical': return 'status-danger';
+                case 'warning': return 'status-warning';
+                case 'notice': return 'status-warning';
+                case 'safe': return 'status-safe';
+                default: return 'status-safe';
+            }
+        }
+
+        function getDaysClass(daysLeft) {
+            if (daysLeft < 0) return 'days-expired';
+            if (daysLeft <= 3) return 'days-expired';
+            if (daysLeft <= 7) return 'days-warning';
+            if (daysLeft <= 30) return 'days-warning';
+            return 'days-safe';
+        }
+
+        function loadExpiredMedicines(filteredData = expiredMedicines) {
+            const tbody = document.getElementById('expiredTableBody');
+            tbody.innerHTML = '';
+            
+            // Update total count
+            document.getElementById('totalMedicinesCount').textContent = filteredData.length;
+            
+            filteredData.forEach(medicine => {
+                const daysLeft = calculateDaysLeft(medicine.expiry);
+                const status = getExpiryStatus(medicine.expiry);
+                const statusClass = getStatusClass(status);
+                const daysClass = getDaysClass(daysLeft);
+                const value = (medicine.quantity * medicine.purchasePrice).toFixed(2);
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${medicine.name}</strong></td>
+                    <td>${medicine.batch}</td>
+                    <td>${medicine.category}</td>
+                    <td>${medicine.quantity} units</td>
+                    <td>${medicine.expiry}</td>
+                    <td>
+                        <span class="days-counter ${daysClass}">
+                            ${daysLeft < 0 ? Math.abs(daysLeft) + ' days ago' : daysLeft + ' days'}
+                        </span>
+                    </td>
+                    <td><span class="status-badge ${statusClass}">${status.toUpperCase()}</span></td>
+                    <td><strong>$${value}</strong></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-icon-btn" style="background: #4e73df; color: white;" onclick="viewMedicineDetails(${medicine.id})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-icon-btn" style="background: #1cc88a; color: white;" onclick="markAsReturned(${medicine.id})">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                            <button class="action-icon-btn" style="background: #e74a3b; color: white;" onclick="removeMedicine(${medicine.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateSummaryCards() {
+            const today = new Date();
+            
+            // Calculate counts
+            const expiredCount = expiredMedicines.filter(m => getExpiryStatus(m.expiry) === 'expired').length;
+            const expiringThisWeek = expiredMedicines.filter(m => {
+                const daysLeft = calculateDaysLeft(m.expiry);
+                return daysLeft >= 0 && daysLeft <= 7;
+            }).length;
+            const expiringThisMonth = expiredMedicines.filter(m => {
+                const daysLeft = calculateDaysLeft(m.expiry);
+                return daysLeft >= 0 && daysLeft <= 30;
+            }).length;
+            
+            // Calculate total value at risk (expired + expiring within 30 days)
+            const totalValueAtRisk = expiredMedicines.filter(m => {
+                const daysLeft = calculateDaysLeft(m.expiry);
+                return daysLeft <= 30;
+            }).reduce((total, m) => {
+                return total + (m.quantity * m.purchasePrice);
+            }, 0);
+            
+            // Recovered value (example - in real app this would come from database)
+            const recoveredValue = 1450;
+            
+            // Update cards
+            document.getElementById('expiredCount').textContent = expiredCount;
+            document.getElementById('expiringThisWeek').textContent = expiringThisWeek;
+            document.getElementById('expiringThisMonth').textContent = expiringThisMonth;
+            document.getElementById('totalValueAtRisk').textContent = '$' + totalValueAtRisk.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('recoveredValue').textContent = '$' + recoveredValue.toLocaleString();
+        }
+
+        function loadCharts() {
+            // Expiry Timeline Chart
+            const expiryTimelineCtx = document.getElementById('expiryTimelineChart');
+            if (expiryTimelineCtx) {
+                window.expiryTimelineChart = new Chart(expiryTimelineCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Expired', '0-7 days', '8-30 days', '31-90 days', '90+ days'],
+                        datasets: [{
+                            label: 'Number of Medicines',
+                            data: [17, 12, 16, 8, 4],
+                            backgroundColor: [
+                                '#e74a3b',
+                                '#f6c23e',
+                                '#36b9cc',
+                                '#4e73df',
+                                '#1cc88a'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    stepSize: 5
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Category Expiry Chart
+            const categoryExpiryCtx = document.getElementById('categoryExpiryChart');
+            if (categoryExpiryCtx) {
+                window.categoryExpiryChart = new Chart(categoryExpiryCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Painkillers', 'Antibiotics', 'Vitamins', 'First Aid', 'Equipment', 'Others'],
+                        datasets: [{
+                            data: [28, 18, 22, 12, 15, 5],
+                            backgroundColor: [
+                                '#e74a3b',
+                                '#f6c23e',
+                                '#36b9cc',
+                                '#4e73df',
+                                '#1cc88a',
+                                '#858796'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function searchMedicines(query) {
+            if (query.length === 0) {
+                loadExpiredMedicines();
+                return;
+            }
+            
+            const filteredData = expiredMedicines.filter(medicine => 
+                medicine.name.toLowerCase().includes(query.toLowerCase()) ||
+                medicine.batch.toLowerCase().includes(query.toLowerCase()) ||
+                medicine.category.toLowerCase().includes(query.toLowerCase()) ||
+                medicine.supplier.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            loadExpiredMedicines(filteredData);
+            
+            if (filteredData.length === 0) {
+                const tbody = document.getElementById('expiredTableBody');
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 40px; color: #858796;">
+                            <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                            No medicines found matching "${query}"
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function applyFilters() {
+            const category = document.getElementById('categoryFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const supplier = document.getElementById('supplierFilter').value;
+            const date = document.getElementById('dateFilter').value;
+            
+            // Show loading
+            const tbody = document.getElementById('expiredTableBody');
+            tbody.innerHTML = '<tr><td colspan="9"><div class="loading"><div class="spinner"></div>Loading filtered data...</div></td></tr>';
+            
+            // Simulate API call
+            setTimeout(() => {
+                let filteredData = expiredMedicines;
+                
+                // Apply category filter
+                if (category) {
+                    filteredData = filteredData.filter(medicine => {
+                        const categoryMap = {
+                            'painkillers': 'Painkillers',
+                            'antibiotics': 'Antibiotics',
+                            'vitamins': 'Vitamins',
+                            'cold_cough': 'Cold & Cough',
+                            'first_aid': 'First Aid'
+                        };
+                        return medicine.category === categoryMap[category];
+                    });
+                }
+                
+                // Apply status filter
+                if (status) {
+                    filteredData = filteredData.filter(medicine => {
+                        const medicineStatus = getExpiryStatus(medicine.expiry);
+                        return medicineStatus === status;
+                    });
+                }
+                
+                // Apply supplier filter
+                if (supplier) {
+                    filteredData = filteredData.filter(medicine => medicine.supplier === supplier);
+                }
+                
+                // Apply date filter (show medicines expiring before this date)
+                if (date) {
+                    filteredData = filteredData.filter(medicine => {
+                        return new Date(medicine.expiry) <= new Date(date);
+                    });
+                }
+                
+                // Display filtered data
+                loadExpiredMedicines(filteredData);
+                showNotification(`Showing ${filteredData.length} medicines with selected filters`);
+            }, 1000);
+        }
+
+        function filterByStatus(status) {
+            document.getElementById('statusFilter').value = status;
+            applyFilters();
+        }
+
+        function filterByCategory(category) {
+            document.getElementById('categoryFilter').value = category;
+            applyFilters();
+        }
+
+        function dismissAlert() {
+            document.getElementById('alertBanner').style.display = 'none';
+            showNotification('Alert dismissed. Remember to handle expired medicines promptly.');
+        }
+
+        function viewMedicineDetails(id) {
+            const medicine = expiredMedicines.find(m => m.id === id);
+            if (medicine) {
+                const daysLeft = calculateDaysLeft(medicine.expiry);
+                const value = (medicine.quantity * medicine.purchasePrice).toFixed(2);
+                
+                alert(`Medicine Details:\n\nName: ${medicine.name}\nBatch: ${medicine.batch}\nCategory: ${medicine.category}\nQuantity: ${medicine.quantity} units\nExpiry: ${medicine.expiry}\nDays Left: ${daysLeft < 0 ? Math.abs(daysLeft) + ' days ago' : daysLeft + ' days'}\nPurchase Price: $${medicine.purchasePrice}\nTotal Value: $${value}\nSupplier: ${medicine.supplier}\n\nRecommended Action: ${getRecommendedAction(medicine.expiry)}`);
+            }
+        }
+
+        function getRecommendedAction(expiryDate) {
+            const daysLeft = calculateDaysLeft(expiryDate);
+            
+            if (daysLeft < 0) return 'Remove immediately from shelves and contact supplier for return';
+            if (daysLeft <= 3) return 'Create urgent discount (50-70% off) and move to front shelf';
+            if (daysLeft <= 7) return 'Create discount (30-50% off) and increase visibility';
+            if (daysLeft <= 30) return 'Create mild discount (10-30% off) and monitor sales';
+            return 'Normal sale - no action required';
+        }
+
+        function markAsReturned(id) {
+            const medicine = expiredMedicines.find(m => m.id === id);
+            if (medicine) {
+                if (confirm(`Mark ${medicine.name} (${medicine.batch}) as returned to supplier?`)) {
+                    showNotification(`Marked ${medicine.name} as returned to supplier`);
+                    // In real app, this would update database
+                    setTimeout(() => {
+                        // Remove from display
+                        const rows = document.querySelectorAll('#expiredTableBody tr');
+                        rows.forEach(row => {
+                            if (row.querySelector('td:first-child strong').textContent === medicine.name) {
+                                row.style.opacity = '0.5';
+                                row.style.textDecoration = 'line-through';
+                            }
+                        });
+                    }, 500);
+                }
+            }
+        }
+
+        function removeMedicine(id) {
+            const medicine = expiredMedicines.find(m => m.id === id);
+            if (medicine) {
+                const value = (medicine.quantity * medicine.purchasePrice).toFixed(2);
+                if (confirm(`Permanently remove ${medicine.name} (${medicine.batch})?\n\nThis will destroy $${value} worth of medicine.\n\nThis action cannot be undone!`)) {
+                    showNotification(`Removing ${medicine.name} from inventory...`);
+                    // In real app, this would update database
+                    setTimeout(() => {
+                        // Remove from display
+                        const rows = document.querySelectorAll('#expiredTableBody tr');
+                        rows.forEach(row => {
+                            if (row.querySelector('td:first-child strong').textContent === medicine.name) {
+                                row.remove();
+                            }
+                        });
+                        showNotification(`${medicine.name} removed from inventory`);
+                        updateSummaryCards();
+                    }, 1000);
+                }
+            }
+        }
+
+        function markAllExpired() {
+            if (confirm('Mark all expired medicines as disposed? This will update inventory records.')) {
+                showNotification('Marking all expired medicines...');
+                setTimeout(() => {
+                    showNotification('All expired medicines marked as disposed');
+                    // Update summary cards
+                    document.getElementById('expiredCount').textContent = '0';
+                    // Update table rows
+                    const rows = document.querySelectorAll('#expiredTableBody tr');
+                    rows.forEach(row => {
+                        const statusCell = row.querySelector('.status-badge');
+                        if (statusCell && statusCell.textContent === 'EXPIRED') {
+                            row.style.opacity = '0.5';
+                            statusCell.textContent = 'DISPOSED';
+                            statusCell.className = 'status-badge status-safe';
+                        }
+                    });
+                }, 1500);
+            }
+        }
+
+        function generateReturnList() {
+            const expiredItems = expiredMedicines.filter(m => getExpiryStatus(m.expiry) === 'expired');
+            
+            let returnList = "=== MEDICINE RETURN LIST ===\n\n";
+            returnList += "Generated: " + new Date().toLocaleString() + "\n";
+            returnList += "Total items for return: " + expiredItems.length + "\n";
+            returnList += "Total value: $" + expiredItems.reduce((total, m) => total + (m.quantity * m.purchasePrice), 0).toFixed(2) + "\n\n";
+            
+            expiredItems.forEach((item, index) => {
+                returnList += `${index + 1}. ${item.name} (${item.batch})\n`;
+                returnList += `   Quantity: ${item.quantity} units\n`;
+                returnList += `   Expired: ${item.expiry}\n`;
+                returnList += `   Supplier: ${item.supplier}\n`;
+                returnList += `   Value: $${(item.quantity * item.purchasePrice).toFixed(2)}\n\n`;
+            });
+            
+            alert(returnList);
+            showNotification('Return list generated. Email this to suppliers.');
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function showRecoveryReport() {
+            alert('Recovery Report:\n\nTotal Value Recovered: $1,450\n\nBreakdown:\n- Pharma Corp: $850 (58.6%)\n- Medical Supply Co.: $320 (22.1%)\n- Health Plus: $280 (19.3%)\n\nAverage recovery rate: 42% of expired stock value');
+        }
+
+        function selectAllExpired() {
+            showNotification('Selected all expired medicines for bulk action');
+            // In real app, this would select checkboxes
+        }
+
+        function generateSupplierReport() {
+            showNotification('Generating supplier expiry report...');
+            setTimeout(() => {
+                showNotification('Supplier report generated and emailed');
+            }, 1500);
+        }
+
+        function confirmDestruction() {
+            if (confirm('Schedule destruction of all expired medicines?\n\nThis will:\n1. Remove from inventory\n2. Generate destruction certificate\n3. Notify regulatory authorities\n\nProceed?')) {
+                showNotification('Scheduling destruction...');
+                setTimeout(() => {
+                    showNotification('Destruction scheduled for tomorrow at 10:00 AM');
+                }, 1000);
+            }
+        }
+
+        function requestSupplierCredit() {
+            showNotification('Sending credit request to suppliers...');
+            setTimeout(() => {
+                showNotification('Credit requests sent to 3 suppliers');
+            }, 1500);
+        }
+
+        function toggleNotifications() {
+            const popup = document.getElementById('notificationPopup');
+            if (!popup) return;
+            
+            popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+            
+            if (popup.style.display === 'block') {
+                const badge = document.querySelector('.notification-badge');
+                if (badge) {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification-popup';
+            notification.style.position = 'fixed';
+            notification.style.bottom = '20px';
+            notification.style.right = '20px';
+            notification.style.top = 'auto';
+            notification.style.animation = 'slideIn 0.3s ease';
+            notification.innerHTML = `
+                <div style="padding: 15px;">
+                    <i class="fas fa-info-circle" style="margin-right: 8px; color: #4e73df;"></i> ${message}
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Add CSS animation if not exists
+            if (!document.querySelector('#notificationAnim')) {
+                const style = document.createElement('style');
+                style.id = 'notificationAnim';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Auto-update expiry status occasionally
+        setInterval(() => {
+            // Simulate new expiry
+            if (Math.random() > 0.8) {
+                const randomIndex = Math.floor(Math.random() * expiredMedicines.length);
+                const randomDays = Math.floor(Math.random() * 10) - 15; // -15 to -5 days
+                
+                const medicine = expiredMedicines[randomIndex];
+                const newDate = new Date(medicine.expiry);
+                newDate.setDate(newDate.getDate() + randomDays);
+                medicine.expiry = newDate.toISOString().split('T')[0];
+                
+                // Reload data
+                loadExpiredMedicines();
+                updateSummaryCards();
+                
+                showNotification(`Expiry updated: ${medicine.name} now ${getExpiryStatus(medicine.expiry)}`);
+            }
+        }, 45000); // Update every 45 seconds
+    </script>
+</body>
+</html>

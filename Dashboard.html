@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Pharmacy System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ===================== RESET & BASE STYLES ===================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            background-color: #f8f9fc;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        /* ===================== SIDEBAR STYLES ===================== */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #4e73df 0%, #224abe 100%);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            z-index: 1000;
+        }
+
+        .logo {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .logo h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .user-info i {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+
+        .user-info div {
+            flex: 1;
+        }
+
+        .user-info h3 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .user-info p {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .menu li {
+            padding: 0;
+        }
+
+        .menu li a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+        }
+
+        .menu li a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #f8f9fc;
+        }
+
+        .menu li.active a {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #f8f9fc;
+        }
+
+        .menu li a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        #logoutBtn {
+            margin-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            padding-top: 20px;
+        }
+
+        /* ===================== MAIN CONTENT STYLES ===================== */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            margin-bottom: 30px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: #f8f9fc;
+            padding: 10px 15px;
+            border-radius: 50px;
+            width: 300px;
+        }
+
+        .search-bar i {
+            color: #6e707e;
+            margin-right: 10px;
+        }
+
+        .search-bar input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .btn-notification {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #6e707e;
+            position: relative;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.3s;
+        }
+
+        .btn-notification:hover {
+            color: #4e73df;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e74a3b;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .date-display {
+            font-weight: 600;
+            color: #4e73df;
+            font-size: 0.9rem;
+        }
+
+        /* ===================== DASHBOARD CONTENT ===================== */
+        .dashboard-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            color: #5a5c69;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        /* ===================== STATS CARDS ===================== */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.2);
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .card-info h3 {
+            font-size: 0.9rem;
+            color: #858796;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .card-info h2 {
+            font-size: 1.8rem;
+            color: #5a5c69;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .card-info p {
+            font-size: 0.8rem;
+            color: #858796;
+        }
+
+        .positive {
+            color: #1cc88a;
+            font-weight: 600;
+        }
+
+        .negative {
+            color: #e74a3b;
+            font-weight: 600;
+        }
+
+        /* ===================== CHARTS SECTION ===================== */
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+        }
+
+        .chart-container h3 {
+            color: #5a5c69;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .chart-container canvas {
+            width: 100% !important;
+            height: 300px !important;
+        }
+
+        /* ===================== ACTIVITIES SECTION ===================== */
+        .activities-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        .recent-activities {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+        }
+
+        .recent-activities h3 {
+            color: #5a5c69;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table thead {
+            background-color: #f8f9fc;
+        }
+
+        table th {
+            padding: 12px 15px;
+            text-align: left;
+            color: #5a5c69;
+            font-weight: 600;
+            border-bottom: 2px solid #e3e6f0;
+        }
+
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e3e6f0;
+            color: #858796;
+        }
+
+        table tbody tr:hover {
+            background-color: #f8f9fc;
+        }
+
+        .quick-actions {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+        }
+
+        .quick-actions h3 {
+            color: #5a5c69;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .action-btn {
+            background: #4e73df;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 600;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #2e59d9;
+            transform: translateY(-2px);
+        }
+
+        .action-btn i {
+            font-size: 1.2rem;
+        }
+
+        .system-status {
+            border-top: 1px solid #e3e6f0;
+            padding-top: 20px;
+        }
+
+        .system-status h4 {
+            color: #5a5c69;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f8f9fc;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #e74a3b;
+        }
+
+        .status-indicator.active {
+            background: #1cc88a;
+        }
+
+        /* ===================== LOADING OVERLAY ===================== */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            display: none;
+        }
+
+        .loading-spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4e73df;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===================== RESPONSIVE DESIGN ===================== */
+        @media (max-width: 1200px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .activities-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .sidebar .logo h2,
+            .user-info div,
+            .menu li a span {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+            }
+            
+            .logo i {
+                margin-bottom: 0;
+            }
+            
+            .user-info {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .user-info i {
+                margin-right: 0;
+                font-size: 2rem;
+            }
+            
+            .menu li a {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .menu li a i {
+                margin-right: 0;
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .search-bar {
+                width: 100%;
+            }
+            
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container canvas {
+                height: 250px !important;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 15px;
+            }
+            
+            .sidebar {
+                width: 60px;
+            }
+            
+            .main-content {
+                margin-left: 60px;
+            }
+            
+            .card {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .card-icon {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+        }
+
+        /* ===================== NOTIFICATION POPUP ===================== */
+        .notification-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            width: 300px;
+            z-index: 1001;
+            display: none;
+            border-left: 4px solid #4e73df;
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .notification-header h4 {
+            color: #5a5c69;
+        }
+
+        .close-notification {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #858796;
+            cursor: pointer;
+        }
+
+        .notification-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #f8f9fc;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        /* ===================== PAGES CONTAINER ===================== */
+        .page-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .page-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-clinic-medical"></i>
+            <h2>Pharmacy Admin</h2>
+        </div>
+        
+        <div class="user-info">
+            <i class="fas fa-user-circle"></i>
+            <div>
+                <h3 id="adminName">Admin User</h3>
+                <p>Admin</p>
+            </div>
+        </div>
+        
+        <ul class="menu">
+            <li class="active"><a href="#" data-page="dashboard"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+            
+            <!-- IMPORTANT: This link opens View_All_Sales.html in same window -->
+            <li><a href="View_All_Sales.html"><i class="fas fa-chart-line"></i> <span>All Sales</span></a></li>
+            <li><a href="View_Profit_and_loss.html"><i class="fas fa-money-bill-wave"></i> <span>Profit/Loss</span></a></li>
+              <li><a href="View_Stock_Reports.html"><i class="fas fa-boxes"></i> <span>Stock Reports</span></a></li>
+            <li><a href="Expired_Medicines.html"><i class="fas fa-exclamation-triangle"></i> <span>Expired Medicines</span></a></li>
+              <li><a href="View_Cashire_Activiteis.html"><i class="fas fa-user-tie"></i> <span>Cashier Activities</span></a></li>
+              <li><a href="manege_Cashier.html"><i class="fas fa-users-cog"></i> <span>Manage Cashiers</span></a></li>
+              <li><a href="setting.html"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+            
+            
+           
+            <li><a href="index.html" id="logoutBtn" data-page="logout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search sales, medicines, cashiers...">
+            </div>
+            <div class="header-actions">
+                <button class="btn-notification" id="notificationBtn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </button>
+                <div class="date-display">
+                    <span id="currentDate">Loading...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner"></div>
+            <p>Loading page...</p>
+        </div>
+
+        <!-- Notification Popup -->
+        <div class="notification-popup" id="notificationPopup">
+            <div class="notification-header">
+                <h4>Notifications (3)</h4>
+                <button class="close-notification" id="closeNotification">&times;</button>
+            </div>
+            <div class="notification-item">
+                <strong>Low Stock Alert:</strong> Paracetamol is running low (12 units left)
+            </div>
+            <div class="notification-item">
+                <strong>Expiry Alert:</strong> Amoxicillin expires in 5 days
+            </div>
+            <div class="notification-item">
+                <strong>New Cashier:</strong> Ahmed Ali just made first sale
+            </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Dashboard Page -->
+            <div id="dashboardPage" class="page-content active">
+                <h1 class="page-title">Dashboard Overview</h1>
+                
+                <!-- Statistics Cards -->
+                <div class="stats-cards">
+                    <div class="card">
+                        <div class="card-icon" style="background-color: #4e73df;">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="card-info">
+                            <h3>Total Sales Today</h3>
+                            <h2 id="todaySales">$12,450</h2>
+                            <p><span class="positive">+12%</span> from yesterday</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-icon" style="background-color: #1cc88a;">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="card-info">
+                            <h3>Monthly Profit</h3>
+                            <h2 id="monthlyProfit">$45,230</h2>
+                            <p><span class="positive">+8%</span> from last month</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-icon" style="background-color: #f6c23e;">
+                            <i class="fas fa-box-open"></i>
+                        </div>
+                        <div class="card-info">
+                            <h3>Low Stock Items</h3>
+                            <h2 id="lowStock">17</h2>
+                            <p>Need immediate attention</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-icon" style="background-color: #e74a3b;">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <div class="card-info">
+                            <h3>Expired Soon</h3>
+                            <h2 id="expiredSoon">9</h2>
+                            <p>Within 30 days</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-section">
+                    <div class="chart-container">
+                        <h3>Sales This Week</h3>
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <h3>Top Selling Medicines</h3>
+                        <canvas id="medicinesChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Activities -->
+                <div class="activities-section">
+                    <div class="recent-activities">
+                        <h3>Recent Cashier Activities</h3>
+                        <table id="activitiesTable">
+                            <thead>
+                                <tr>
+                                    <th>Cashier</th>
+                                    <th>Action</th>
+                                    <th>Amount</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activitiesTableBody">
+                                <!-- Data loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="quick-actions">
+                        <h3>Quick Actions</h3>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="window.location.href='View_All_Sales.html'">
+                                <i class="fas fa-list"></i>
+                                View All Sales
+                            </button>
+                            <button class="action-btn" data-page="stock-reports">
+                                <i class="fas fa-chart-pie"></i>
+                                Stock Reports
+                            </button>
+                            <button class="action-btn" data-page="expired-medicines">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Expired Medicines
+                            </button>
+                            <button class="action-btn" data-page="manage-cashiers">
+                                <i class="fas fa-user-plus"></i>
+                                Manage Cashiers
+                            </button>
+                        </div>
+                        
+                        <div class="system-status">
+                            <h4>System Status</h4>
+                            <div class="status-item">
+                                <span>Database</span>
+                                <span class="status-indicator active"></span>
+                                <span>Online</span>
+                            </div>
+                            <div class="status-item">
+                                <span>Backup</span>
+                                <span class="status-indicator active"></span>
+                                <span>Completed</span>
+                            </div>
+                            <div class="status-item">
+                                <span>Last Login</span>
+                                <span id="lastLoginTime">Today, 08:00 AM</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other Pages for Internal Navigation -->
+            <div id="profitLossPage" class="page-content">
+                <h1 class="page-title">Profit & Loss Analysis</h1>
+                <div style="background: white; padding: 30px; border-radius: 10px; margin-top: 20px;">
+                    <p style="color: #858796; margin-bottom: 20px;">Detailed profit and loss analysis will be displayed here.</p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                        <div style="background: #f8f9fc; padding: 20px; border-radius: 8px;">
+                            <h4 style="color: #5a5c69; margin-bottom: 10px;">Total Revenue</h4>
+                            <h2 style="color: #1cc88a;">$124,850</h2>
+                        </div>
+                        <div style="background: #f8f9fc; padding: 20px; border-radius: 8px;">
+                            <h4 style="color: #5a5c69; margin-bottom: 10px;">Total Expenses</h4>
+                            <h2 style="color: #e74a3b;">$89,620</h2>
+                        </div>
+                        <div style="background: #f8f9fc; padding: 20px; border-radius: 8px;">
+                            <h4 style="color: #5a5c69; margin-bottom: 10px;">Net Profit</h4>
+                            <h2 style="color: #4e73df;">$35,230</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="stockReportsPage" class="page-content">
+                <h1 class="page-title">Stock Inventory Reports</h1>
+                <div style="background: white; padding: 30px; border-radius: 10px; margin-top: 20px;">
+                    <p style="color: #858796; margin-bottom: 20px;">Stock inventory reports and analysis.</p>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #f8f9fc;">
+                                    <th style="padding: 12px; text-align: left;">Medicine</th>
+                                    <th style="padding: 12px; text-align: left;">Current Stock</th>
+                                    <th style="padding: 12px; text-align: left;">Minimum Level</th>
+                                    <th style="padding: 12px; text-align: left;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 12px;">Paracetamol 500mg</td>
+                                    <td style="padding: 12px;">45 units</td>
+                                    <td style="padding: 12px;">100 units</td>
+                                    <td style="padding: 12px;"><span style="background: #e74a3b; color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem;">Low Stock</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px;">Amoxicillin 250mg</td>
+                                    <td style="padding: 12px;">120 units</td>
+                                    <td style="padding: 12px;">80 units</td>
+                                    <td style="padding: 12px;"><span style="background: #1cc88a; color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem;">Good</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="expiredMedicinesPage" class="page-content">
+                <h1 class="page-title">Expired Medicines Alert</h1>
+                <div style="background: white; padding: 30px; border-radius: 10px; margin-top: 20px;">
+                    <p style="color: #858796; margin-bottom: 20px;">List of medicines that are expired or about to expire.</p>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #f8f9fc;">
+                                    <th style="padding: 12px; text-align: left;">Medicine</th>
+                                    <th style="padding: 12px; text-align: left;">Batch No</th>
+                                    <th style="padding: 12px; text-align: left;">Expiry Date</th>
+                                    <th style="padding: 12px; text-align: left;">Days Left</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 12px;">Vitamin C 1000mg</td>
+                                    <td style="padding: 12px;">VC-2023-05</td>
+                                    <td style="padding: 12px;">2024-02-15</td>
+                                    <td style="padding: 12px;"><span style="color: #e74a3b; font-weight: bold;">5 days</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px;">Ibuprofen 400mg</td>
+                                    <td style="padding: 12px;">IB-2023-08</td>
+                                    <td style="padding: 12px;">2024-03-10</td>
+                                    <td style="padding: 12px;"><span style="color: #f6c23e; font-weight: bold;">30 days</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="cashierActivitiesPage" class="page-content">
+                <h1 class="page-title">Cashier Activities Monitor</h1>
+                <div style="background: white; padding: 30px; border-radius: 10px; margin-top: 20px;">
+                    <p style="color: #858796; margin-bottom: 20px;">Monitor all cashier activities in real-time.</p>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #f8f9fc;">
+                                    <th style="padding: 12px; text-align: left;">Cashier</th>
+                                    <th style="padding: 12px; text-align: left;">Shift</th>
+                                    <th style="padding: 12px; text-align: left;">Total Sales</th>
+                                    <th style="padding: 12px; text-align: left;">Last Activity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 12px;">Ahmed Ali</td>
+                                    <td style="padding: 12px;">Morning (8AM-4PM)</td>
+                                    <td style="padding: 12px;">$2,450</td>
+                                    <td style="padding: 12px;">10:30 AM - Medicine Sale</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px;">Fatima Hassan</td>
+                                    <td style="padding: 12px;">Evening (4PM-12AM)</td>
+                                    <td style="padding: 12px;">$1,850</td>
+                                    <td style="padding: 12px;">09:15 AM - Stock Update</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="manageCashiersPage" class="page-content">
+                <h1 class="page-title">Manage Cashiers</h1>
+                <div style="background: white; padding: 30px; border-radius: 10px; margin-top: 20px;">
+                    <p style="color: #858796; margin-bottom: 20px;">Add, edit, or remove cashier accounts.</p>
+                    <div style="display: flex; gap: 20px; margin-bottom: 30px;">
+                        <button style="background: #1cc88a; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-user-plus"></i> Add New Cashier
+                        </button>
+                        <button style="background: #4e73df; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-edit"></i> Edit Cashier
+                        </button>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #f8f9fc;">
+                                    <th style="padding: 12px; text-align: left;">Cashier ID</th>
+                                    <th style="padding: 12px; text-align: left;">Name</th>
+                                    <th style="padding: 12px; text-align: left;">Email</th>
+                                    <th style="padding: 12px; text-align: left;">Status</th>
+                                    <th style="padding: 12px; text-align: left;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 12px;">CASH-001</td>
+                                    <td style="padding: 12px;">Ahmed Ali</td>
+                                    <td style="padding: 12px;">ahmed@pharmacy.com</td>
+                                    <td style="padding: 12px;"><span style="background: #1cc88a; color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem;">Active</span></td>
+                                    <td style="padding: 12px;">
+                                        <button style="background: #4e73df; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Edit</button>
+                                        <button style="background: #e74a3b; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Deactivate</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="settingsPage" class="page-content">
+                <h1 class="page-title">System Settings</h1>
+                <div style="background: white; padding: 30px; border-radius: 10px; margin-top: 20px;">
+                    <p style="color: #858796; margin-bottom: 20px;">Configure system settings and preferences.</p>
+                    <div style="display: grid; gap: 20px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; color: #5a5c69; font-weight: 600;">Pharmacy Name</label>
+                            <input type="text" style="width: 100%; padding: 10px; border: 1px solid #e3e6f0; border-radius: 6px;" value="City Pharmacy">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; color: #5a5c69; font-weight: 600;">Currency</label>
+                            <select style="width: 100%; padding: 10px; border: 1px solid #e3e6f0; border-radius: 6px;">
+                                <option>USD ($)</option>
+                                <option>EUR (€)</option>
+                                <option>GBP (£)</option>
+                            </select>
+                        </div>
+                        <button style="background: #4e73df; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; width: fit-content;">Save Settings</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===================== INITIALIZATION =====================
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDashboard();
+            setupEventListeners();
+            updateDateTime();
+            loadCharts();
+            loadActivities();
+            
+            // Update time every minute
+            setInterval(updateDateTime, 60000);
+        });
+
+        // ===================== DASHBOARD FUNCTIONS =====================
+        function initializeDashboard() {
+            const adminName = localStorage.getItem('adminName') || 'Admin User';
+            document.getElementById('adminName').textContent = adminName;
+            
+            const lastLogin = localStorage.getItem('lastLogin') || new Date().toLocaleString();
+            document.getElementById('lastLoginTime').textContent = formatDate(lastLogin);
+            
+            localStorage.setItem('lastLogin', new Date().toISOString());
+        }
+
+        function setupEventListeners() {
+            // Menu items with data-page (internal pages)
+            document.querySelectorAll('.menu li a[data-page]').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const pageId = this.getAttribute('data-page');
+                    navigateToPage(pageId);
+                });
+            });
+
+            // Menu items WITHOUT data-page (external links like View All Sales)
+            document.querySelectorAll('.menu li a:not([data-page])').forEach(item => {
+                // Let these links work normally (they have href attributes)
+                // We don't prevent default behavior
+                item.addEventListener('click', function() {
+                    // Show loading indicator
+                    showLoading();
+                    
+                    // The browser will naturally navigate to the href
+                });
+            });
+
+            // Quick action buttons
+            document.querySelectorAll('.action-btn[data-page]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const pageId = this.getAttribute('data-page');
+                    navigateToPage(pageId);
+                });
+            });
+
+            // Notification button
+            document.getElementById('notificationBtn').addEventListener('click', toggleNotifications);
+            document.getElementById('closeNotification').addEventListener('click', toggleNotifications);
+
+            // Search input
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                searchDashboard(e.target.value);
+            });
+
+            // Close notification when clicking outside
+            document.addEventListener('click', function(e) {
+                const notificationPopup = document.getElementById('notificationPopup');
+                const notificationBtn = document.getElementById('notificationBtn');
+                
+                if (notificationPopup && notificationBtn && 
+                    !notificationPopup.contains(e.target) && 
+                    !notificationBtn.contains(e.target) && 
+                    notificationPopup.style.display === 'block') {
+                    notificationPopup.style.display = 'none';
+                }
+            });
+        }
+
+        // ===================== PAGE NAVIGATION =====================
+        function navigateToPage(pageId) {
+            if (pageId === 'logout') {
+                logout();
+                return;
+            }
+
+            // Show loading overlay
+            showLoading();
+
+            // Hide all pages
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // Update active menu item
+            document.querySelectorAll('.menu li').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Find and activate clicked menu item
+            const activeLink = document.querySelector(`.menu li a[data-page="${pageId}"]`);
+            if (activeLink) {
+                activeLink.closest('li').classList.add('active');
+            }
+
+            // Simulate loading delay
+            setTimeout(() => {
+                // Show selected page
+                const pageElement = document.getElementById(`${pageId}Page`);
+                if (pageElement) {
+                    pageElement.classList.add('active');
+                    // Update page title
+                    const pageTitle = activeLink ? activeLink.querySelector('span').textContent : pageId;
+                    document.querySelectorAll('.page-title').forEach(title => {
+                        title.textContent = pageTitle;
+                    });
+                } else {
+                    // If page doesn't exist, show dashboard
+                    document.getElementById('dashboardPage').classList.add('active');
+                    document.querySelector('.menu li a[data-page="dashboard"]').closest('li').classList.add('active');
+                }
+
+                // Hide loading
+                hideLoading();
+                
+                // Show notification
+                showNotification(`Navigated to ${pageTitle || pageId}`);
+            }, 500);
+        }
+
+        function showLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.style.display = 'flex';
+            }
+        }
+
+        function hideLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.style.display = 'none';
+            }
+        }
+
+        // ===================== DATA LOADING FUNCTIONS =====================
+        function loadActivities() {
+            const activities = [
+                { cashier: 'Ahmed Ali', action: 'Medicine Sale', amount: '$245.50', time: '10:30 AM' },
+                { cashier: 'Fatima Hassan', action: 'Stock Added', amount: '$1,200', time: '09:15 AM' },
+                { cashier: 'Omar Yusuf', action: 'Credit Payment', amount: '$150.00', time: 'Yesterday' },
+                { cashier: 'Ahmed Ali', action: 'Medicine Sale', amount: '$89.99', time: 'Yesterday' },
+                { cashier: 'Khadija Ahmed', action: 'New Customer', amount: '-', time: '2 days ago' },
+                { cashier: 'Mohamed Ibrahim', action: 'Return Processed', amount: '$45.50', time: '2 days ago' }
+            ];
+
+            const tbody = document.getElementById('activitiesTableBody');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+
+            activities.forEach(activity => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${activity.cashier}</td>
+                    <td>${activity.action}</td>
+                    <td>${activity.amount}</td>
+                    <td>${activity.time}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // ===================== CHART FUNCTIONS =====================
+        function loadCharts() {
+            // Sales Chart
+            const salesCtx = document.getElementById('salesChart');
+            if (salesCtx) {
+                new Chart(salesCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'Sales ($)',
+                            data: [3200, 4500, 2800, 5200, 4800, 6100, 3800],
+                            borderColor: '#4e73df',
+                            backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value.toLocaleString();
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Medicines Chart
+            const medicinesCtx = document.getElementById('medicinesChart');
+            if (medicinesCtx) {
+                new Chart(medicinesCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Paracetamol', 'Amoxicillin', 'Ibuprofen', 'Vitamin C', 'Cetirizine', 'Omeprazole'],
+                        datasets: [{
+                            label: 'Units Sold',
+                            data: [120, 85, 92, 45, 78, 56],
+                            backgroundColor: [
+                                '#4e73df',
+                                '#1cc88a',
+                                '#f6c23e',
+                                '#e74a3b',
+                                '#36b9cc',
+                                '#858796'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    drawBorder: false
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // ===================== HELPER FUNCTIONS =====================
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            const dateElement = document.getElementById('currentDate');
+            if (dateElement) {
+                dateElement.textContent = now.toLocaleDateString('en-US', options);
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            
+            if (minutes < 1) return 'Just now';
+            if (minutes < 60) return `${minutes} minutes ago`;
+            if (hours < 24) return `${hours} hours ago`;
+            if (days === 1) return 'Yesterday';
+            if (days < 7) return `${days} days ago`;
+            
+            return date.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function toggleNotifications() {
+            const popup = document.getElementById('notificationPopup');
+            if (!popup) return;
+            
+            popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+            
+            if (popup.style.display === 'block') {
+                const badge = document.querySelector('.notification-badge');
+                if (badge) {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+
+        function searchDashboard(query) {
+            if (query.length > 2) {
+                console.log('Searching for:', query);
+                // In real app, this would call search API
+            }
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification-popup';
+            notification.style.position = 'fixed';
+            notification.style.bottom = '20px';
+            notification.style.right = '20px';
+            notification.style.top = 'auto';
+            notification.style.animation = 'slideIn 0.3s ease';
+            notification.innerHTML = `
+                <div style="padding: 15px;">
+                    <i class="fas fa-info-circle" style="margin-right: 8px; color: #4e73df;"></i> ${message}
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Add CSS animation if not exists
+            if (!document.querySelector('#notificationAnim')) {
+                const style = document.createElement('style');
+                style.id = 'notificationAnim';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                showLoading();
+                
+                setTimeout(() => {
+                    localStorage.removeItem('adminName');
+                    localStorage.removeItem('lastLogin');
+                    window.location.href = 'login.html';
+                }, 1500);
+            }
+        }
+
+        // ===================== AUTO-UPDATE FUNCTIONS =====================
+        setInterval(() => {
+            const todaySales = document.getElementById('todaySales');
+            if (todaySales) {
+                const currentSales = parseInt(todaySales.textContent.replace('$', '').replace(',', ''));
+                const randomChange = Math.floor(Math.random() * 200) - 100;
+                const newSales = Math.max(10000, currentSales + randomChange);
+                todaySales.textContent = '$' + newSales.toLocaleString();
+            }
+            
+            if (Math.random() > 0.7) {
+                const activities = [
+                    { cashier: 'Ahmed Ali', action: 'Medicine Sale', amount: '$' + (Math.random() * 500 + 50).toFixed(2), time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) },
+                    { cashier: 'Fatima Hassan', action: 'Stock Added', amount: '$' + (Math.random() * 1000 + 100).toFixed(2), time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) },
+                    { cashier: 'Omar Yusuf', action: 'Customer Registered', amount: '-', time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }
+                ];
+                
+                const tbody = document.getElementById('activitiesTableBody');
+                if (tbody) {
+                    const newActivity = activities[Math.floor(Math.random() * activities.length)];
+                    const newRow = document.createElement('tr');
+                    newRow.innerHTML = `
+                        <td>${newActivity.cashier}</td>
+                        <td>${newActivity.action}</td>
+                        <td>${newActivity.amount}</td>
+                        <td>${newActivity.time}</td>
+                    `;
+                    tbody.insertBefore(newRow, tbody.firstChild);
+                    
+                    if (tbody.children.length > 6) {
+                        tbody.removeChild(tbody.lastChild);
+                    }
+                }
+            }
+        }, 10000);
+    </script>
+</body>
+</html>

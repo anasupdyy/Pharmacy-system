@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Cashiers - Pharmacy System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            background-color: #f8f9fc;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        /* ===================== SIDEBAR STYLES ===================== */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #4e73df 0%, #224abe 100%);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            z-index: 1000;
+        }
+
+        .logo {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .logo h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .user-info i {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+
+        .user-info div {
+            flex: 1;
+        }
+
+        .user-info h3 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .user-info p {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .menu li {
+            padding: 0;
+        }
+
+        .menu li a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+        }
+
+        .menu li a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #f8f9fc;
+        }
+
+        .menu li.active a {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #f8f9fc;
+        }
+
+        .menu li a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        #logoutBtn {
+            margin-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            padding-top: 20px;
+        }
+
+        /* ===================== MAIN CONTENT STYLES ===================== */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            margin-bottom: 30px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: #f8f9fc;
+            padding: 10px 15px;
+            border-radius: 50px;
+            width: 300px;
+        }
+
+        .search-bar i {
+            color: #6e707e;
+            margin-right: 10px;
+        }
+
+        .search-bar input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .btn-notification {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #6e707e;
+            position: relative;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.3s;
+        }
+
+        .btn-notification:hover {
+            color: #4e73df;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e74a3b;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .date-display {
+            font-weight: 600;
+            color: #4e73df;
+            font-size: 0.9rem;
+        }
+
+        /* ===================== PAGE CONTENT ===================== */
+        .page-title {
+            color: #5a5c69;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-title i {
+            color: #4e73df;
+        }
+
+        /* Create Cashier Section */
+        .create-cashier-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .create-cashier-btn {
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(78, 115, 223, 0.3);
+        }
+
+        .create-cashier-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(78, 115, 223, 0.4);
+            background: linear-gradient(135deg, #3a56c4 0%, #1d3ca1 100%);
+        }
+
+        .create-cashier-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .create-cashier-btn i {
+            font-size: 1.1rem;
+        }
+
+        /* Summary Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+            font-size: 1.3rem;
+        }
+
+        .card-info h3 {
+            font-size: 0.85rem;
+            color: #858796;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .card-info h2 {
+            font-size: 1.5rem;
+            color: #5a5c69;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .card-info p {
+            font-size: 0.75rem;
+            color: #858796;
+        }
+
+        /* Cashiers Table */
+        .cashiers-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 40px;
+        }
+
+        .table-header {
+            background: linear-gradient(to right, #4e73df, #224abe);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: #f8f9fc;
+        }
+
+        th {
+            padding: 12px 15px;
+            text-align: left;
+            color: #5a5c69;
+            font-weight: 600;
+            border-bottom: 2px solid #e3e6f0;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e3e6f0;
+            color: #858796;
+        }
+
+        tbody tr {
+            transition: background 0.3s;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fc;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #d1f7e5;
+            color: #0f5132;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-onleave {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .cashier-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: #4e73df;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .action-btn.edit {
+            background: #f6c23e;
+        }
+
+        .action-btn.edit:hover {
+            background: #f4b30d;
+        }
+
+        .action-btn.delete {
+            background: #e74a3b;
+        }
+
+        .action-btn.delete:hover {
+            background: #d52a1a;
+        }
+
+        .action-btn.view {
+            background: #36b9cc;
+        }
+
+        .action-btn.view:hover {
+            background: #2c9faf;
+        }
+
+        .action-btn.deactivate {
+            background: #858796;
+        }
+
+        .action-btn.deactivate:hover {
+            background: #6e707e;
+        }
+
+        /* Create Cashier Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            display: none;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            background: linear-gradient(to right, #4e73df, #224abe);
+            color: white;
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #5a5c69;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e3e6f0;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: border 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4e73df;
+            box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e3e6f0;
+        }
+
+        .btn-cancel {
+            background: #858796;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .btn-cancel:hover {
+            background: #6e707e;
+        }
+
+        .btn-submit {
+            background: #1cc88a;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+
+        .btn-submit:hover {
+            background: #17a673;
+        }
+
+        /* Password Toggle */
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6e707e;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        /* Charts Section */
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+        }
+
+        .chart-container h3 {
+            color: #5a5c69;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-container canvas {
+            width: 100% !important;
+            height: 300px !important;
+        }
+
+        /* Bulk Actions */
+        .bulk-actions {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            margin-bottom: 40px;
+        }
+
+        .bulk-actions h3 {
+            color: #5a5c69;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bulk-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .sidebar .logo h2,
+            .user-info div,
+            .menu li a span {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+            }
+            
+            .logo i {
+                margin-bottom: 0;
+            }
+            
+            .user-info {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .user-info i {
+                margin-right: 0;
+                font-size: 2rem;
+            }
+            
+            .menu li a {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .menu li a i {
+                margin-right: 0;
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .search-bar {
+                width: 100%;
+            }
+            
+            .summary-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .chart-container canvas {
+                height: 250px !important;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-btns {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 15px;
+            }
+            
+            .sidebar {
+                width: 60px;
+            }
+            
+            .main-content {
+                margin-left: 60px;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .card-icon {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+            
+            .bulk-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* Notification Popup */
+        .notification-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            width: 300px;
+            z-index: 1001;
+            display: none;
+            border-left: 4px solid #4e73df;
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .notification-header h4 {
+            color: #5a5c69;
+        }
+
+        .close-notification {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #858796;
+            cursor: pointer;
+        }
+
+        .notification-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #f8f9fc;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Loading Animation */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #5a5c69;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4e73df;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Print Styles */
+        @media print {
+            .sidebar, .top-bar, .create-cashier-btn, .action-btns, .bulk-actions {
+                display: none !important;
+            }
+            
+            .main-content {
+                margin-left: 0 !important;
+                padding: 0 !important;
+            }
+            
+            .cashiers-container, .chart-container {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-clinic-medical"></i>
+            <h2>Pharmacy Admin</h2>
+        </div>
+        
+        <div class="user-info">
+            <i class="fas fa-user-circle"></i>
+            <div>
+                <h3 id="adminName">Admin User</h3>
+                <p>Manage Cashiers</p>
+            </div>
+        </div>
+        
+        <ul class="menu">
+            <li><a href="Dashboard.html"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+            <li><a href="View_All_Sales.html"><i class="fas fa-chart-line"></i> <span>All Sales</span></a></li>
+            <li><a href="View_Profit_and_loss.html"><i class="fas fa-money-bill-wave"></i> <span>Profit/Loss</span></a></li>
+            <li><a href="View_Stock_Reports.html"><i class="fas fa-boxes"></i> <span>Stock Reports</span></a></li>
+            <li><a href="Expired_Medicines.html"><i class="fas fa-exclamation-triangle"></i> <span>Expired Medicines</span></a></li>
+            <li><a href="View_Cashire_Activiteis.html"><i class="fas fa-user-tie"></i> <span>Cashier Activities</span></a></li>
+            <li class="active"><a href="manege_Cashier.html"><i class="fas fa-users-cog"></i> <span>Manage Cashiers</span></a></li>
+            <li><a href="setting.html"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+            <li><a href="index.html" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search cashiers by name, ID, or email...">
+            </div>
+            <div class="header-actions">
+                <button class="btn-notification" id="notificationBtn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </button>
+                <div class="date-display">
+                    <span id="currentDate">Loading...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Notification Popup -->
+        <div class="notification-popup" id="notificationPopup">
+            <div class="notification-header">
+                <h4>Cashier Notifications (3)</h4>
+                <button class="close-notification" id="closeNotification">&times;</button>
+            </div>
+            <div class="notification-item">
+                <strong>New Request:</strong> Ahmed requested leave
+            </div>
+            <div class="notification-item">
+                <strong>Training:</strong> New cashier training tomorrow
+            </div>
+            <div class="notification-item">
+                <strong>Performance:</strong> Fatima exceeded monthly target
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <h1 class="page-title">
+            <i class="fas fa-users-cog"></i>
+            Manage Cashiers
+        </h1>
+        
+        <!-- Create Cashier Button -->
+        <div class="create-cashier-section">
+            <button class="create-cashier-btn" onclick="openCreateCashierModal()">
+                <i class="fas fa-user-plus"></i>
+                Create New Cashier
+            </button>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+            <div class="summary-card" onclick="filterByStatus('active')">
+                <div class="card-icon" style="background-color: #1cc88a;">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Active Cashiers</h3>
+                    <h2 id="activeCashiers">8</h2>
+                    <p>Currently working</p>
+                </div>
+            </div>
+            
+            <div class="summary-card" onclick="filterByStatus('inactive')">
+                <div class="card-icon" style="background-color: #e74a3b;">
+                    <i class="fas fa-user-slash"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Inactive Cashiers</h3>
+                    <h2 id="inactiveCashiers">2</h2>
+                    <p>Not available</p>
+                </div>
+            </div>
+            
+            <div class="summary-card" onclick="filterByStatus('onleave')">
+                <div class="card-icon" style="background-color: #36b9cc;">
+                    <i class="fas fa-umbrella-beach"></i>
+                </div>
+                <div class="card-info">
+                    <h3>On Leave</h3>
+                    <h2 id="onLeaveCashiers">1</h2>
+                    <p>Vacation/sick leave</p>
+                </div>
+            </div>
+            
+            <div class="summary-card" onclick="viewTrainingSchedule()">
+                <div class="card-icon" style="background-color: #f6c23e;">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Need Training</h3>
+                    <h2 id="needTraining">3</h2>
+                    <p>Training required</p>
+                </div>
+            </div>
+            
+            <div class="summary-card" onclick="viewPerformanceReport()">
+                <div class="card-icon" style="background-color: #4e73df;">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Avg Performance</h3>
+                    <h2 id="avgPerformance">87%</h2>
+                    <p>Monthly average</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cashiers Table -->
+        <div class="cashiers-container">
+            <div class="table-header">
+                <h3><i class="fas fa-list"></i> All Cashiers</h3>
+                <span style="font-size: 0.9rem;">Total: <strong id="totalCashiers">12</strong> cashiers</span>
+            </div>
+            <table id="cashiersTable">
+                <thead>
+                    <tr>
+                        <th>Cashier ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Shift</th>
+                        <th>Status</th>
+                        <th>Join Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="cashiersTableBody">
+                    <!-- Cashiers data will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="chart-container">
+                <h3><i class="fas fa-chart-bar"></i> Cashier Performance Distribution</h3>
+                <canvas id="performanceChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <h3><i class="fas fa-chart-pie"></i> Cashier Status Breakdown</h3>
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Bulk Actions -->
+        <div class="bulk-actions">
+            <h3><i class="fas fa-tasks"></i> Bulk Actions</h3>
+            <div class="bulk-buttons">
+                <button class="action-btn" onclick="selectAllCashiers()">
+                    <i class="fas fa-check-square"></i>
+                    Select All
+                </button>
+                <button class="action-btn green" onclick="sendBulkEmail()">
+                    <i class="fas fa-envelope"></i>
+                    Send Email
+                </button>
+                <button class="action-btn orange" onclick="assignTraining()">
+                    <i class="fas fa-graduation-cap"></i>
+                    Assign Training
+                </button>
+                <button class="action-btn red" onclick="deactivateSelected()">
+                    <i class="fas fa-user-slash"></i>
+                    Deactivate Selected
+                </button>
+                <button class="action-btn" onclick="exportCashiersList()">
+                    <i class="fas fa-download"></i>
+                    Export List
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Cashier Modal -->
+    <div class="modal-overlay" id="createCashierModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> Create New Cashier</h3>
+                <button class="close-modal" onclick="closeCreateCashierModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="createCashierForm" onsubmit="submitCashierForm(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name *</label>
+                            <input type="text" id="firstName" class="form-input" required placeholder="Enter first name">
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name *</label>
+                            <input type="text" id="lastName" class="form-input" required placeholder="Enter last name">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" class="form-input" required placeholder="cashier@pharmacy.com">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phone">Phone Number *</label>
+                            <input type="tel" id="phone" class="form-input" required placeholder="+252 61 123 4567">
+                        </div>
+                        <div class="form-group">
+                            <label for="employeeId">Employee ID</label>
+                            <input type="text" id="employeeId" class="form-input" placeholder="Auto-generated" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="password">Password *</label>
+                            <div class="input-with-icon">
+                                <input type="password" id="password" class="form-input" required placeholder="Create strong password">
+                                <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password *</label>
+                            <div class="input-with-icon">
+                                <input type="password" id="confirmPassword" class="form-input" required placeholder="Confirm password">
+                                <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="shift">Shift *</label>
+                            <select id="shift" class="form-input" required>
+                                <option value="">Select shift</option>
+                                <option value="morning">Morning (8AM - 4PM)</option>
+                                <option value="evening">Evening (4PM - 12AM)</option>
+                                <option value="night">Night (12AM - 8AM)</option>
+                                <option value="flexible">Flexible</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="salary">Salary ($)</label>
+                            <input type="number" id="salary" class="form-input" placeholder="Monthly salary" min="0" step="100">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <textarea id="address" class="form-input" rows="2" placeholder="Full address"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" class="form-input" rows="2" placeholder="Additional information"></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel" onclick="closeCreateCashierModal()">Cancel</button>
+                        <button type="submit" class="btn-submit">
+                            <i class="fas fa-user-plus"></i>
+                            Create Cashier
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize cashiers data
+        let cashiersData = [
+            { id: 'CASH-001', firstName: 'Ahmed', lastName: 'Ali', email: 'ahmed@pharmacy.com', phone: '+252 61 123 4567', shift: 'morning', status: 'active', joinDate: '2023-01-15', salary: 850, address: 'Mogadishu, Somalia', notes: 'Top performer' },
+            { id: 'CASH-002', firstName: 'Fatima', lastName: 'Hassan', email: 'fatima@pharmacy.com', phone: '+252 61 234 5678', shift: 'morning', status: 'active', joinDate: '2023-02-20', salary: 820, address: 'Mogadishu, Somalia', notes: 'Excellent customer service' },
+            { id: 'CASH-003', firstName: 'Omar', lastName: 'Yusuf', email: 'omar@pharmacy.com', phone: '+252 61 345 6789', shift: 'evening', status: 'active', joinDate: '2023-03-10', salary: 800, address: 'Mogadishu, Somalia', notes: 'New cashier, needs training' },
+            { id: 'CASH-004', firstName: 'Hassan', lastName: 'Mohamed', email: 'hassan@pharmacy.com', phone: '+252 61 456 7890', shift: 'night', status: 'active', joinDate: '2023-04-05', salary: 850, address: 'Mogadishu, Somalia', notes: 'Reliable night shift' },
+            { id: 'CASH-005', firstName: 'Safia', lastName: 'Abdi', email: 'safia@pharmacy.com', phone: '+252 61 567 8901', shift: 'morning', status: 'onleave', joinDate: '2023-05-12', salary: 800, address: 'Mogadishu, Somalia', notes: 'On vacation until next month' },
+            { id: 'CASH-006', firstName: 'Mohamed', lastName: 'Ibrahim', email: 'mohamed@pharmacy.com', phone: '+252 61 678 9012', shift: 'evening', status: 'active', joinDate: '2023-06-18', salary: 780, address: 'Mogadishu, Somalia', notes: 'Part-time cashier' },
+            { id: 'CASH-007', firstName: 'Naima', lastName: 'Omar', email: 'naima@pharmacy.com', phone: '+252 61 789 0123', shift: 'morning', status: 'inactive', joinDate: '2023-07-22', salary: 750, address: 'Mogadishu, Somalia', notes: 'Left the company' },
+            { id: 'CASH-008', firstName: 'Yusuf', lastName: 'Hussein', email: 'yusuf@pharmacy.com', phone: '+252 61 890 1234', shift: 'flexible', status: 'active', joinDate: '2023-08-30', salary: 820, address: 'Mogadishu, Somalia', notes: 'Flexible schedule' },
+            { id: 'CASH-009', firstName: 'Khadija', lastName: 'Ali', email: 'khadija@pharmacy.com', phone: '+252 61 901 2345', shift: 'evening', status: 'active', joinDate: '2023-09-14', salary: 790, address: 'Mogadishu, Somalia', notes: 'Recently promoted' },
+            { id: 'CASH-010', firstName: 'Abdullahi', lastName: 'Farah', email: 'abdullahi@pharmacy.com', phone: '+252 61 012 3456', shift: 'night', status: 'inactive', joinDate: '2023-10-05', salary: 800, address: 'Mogadishu, Somalia', notes: 'Suspended temporarily' },
+            { id: 'CASH-011', firstName: 'Zahra', lastName: 'Mohamed', email: 'zahra@pharmacy.com', phone: '+252 61 123 4567', shift: 'morning', status: 'active', joinDate: '2023-11-11', salary: 810, address: 'Mogadishu, Somalia', notes: 'Fast learner' },
+            { id: 'CASH-012', firstName: 'Ismail', lastName: 'Ahmed', email: 'ismail@pharmacy.com', phone: '+252 61 234 5678', shift: 'evening', status: 'active', joinDate: '2023-12-03', salary: 770, address: 'Mogadishu, Somalia', notes: 'Student cashier' }
+        ];
+
+        // DOM Content Loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCurrentDate();
+            loadCashiersTable();
+            updateSummaryCards();
+            initializeCharts();
+            setupEventListeners();
+        });
+
+        // Update current date
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        // Load cashiers table
+        function loadCashiersTable() {
+            const tableBody = document.getElementById('cashiersTableBody');
+            tableBody.innerHTML = '';
+
+            cashiersData.forEach(cashier => {
+                const row = document.createElement('tr');
+                
+                // Get status class
+                let statusClass = '';
+                let statusText = '';
+                switch(cashier.status) {
+                    case 'active': statusClass = 'status-active'; statusText = 'Active'; break;
+                    case 'inactive': statusClass = 'status-inactive'; statusText = 'Inactive'; break;
+                    case 'onleave': statusClass = 'status-onleave'; statusText = 'On Leave'; break;
+                    default: statusClass = 'status-pending'; statusText = 'Pending';
+                }
+                
+                // Format join date
+                const joinDate = new Date(cashier.joinDate);
+                const formattedDate = joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                
+                // Get initials for avatar
+                const initials = cashier.firstName.charAt(0) + cashier.lastName.charAt(0);
+                
+                row.innerHTML = `
+                    <td>${cashier.id}</td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div class="cashier-avatar">${initials}</div>
+                            <div>${cashier.firstName} ${cashier.lastName}</div>
+                        </div>
+                    </td>
+                    <td>${cashier.email}</td>
+                    <td>${cashier.phone}</td>
+                    <td>${cashier.shift.charAt(0).toUpperCase() + cashier.shift.slice(1)}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>${formattedDate}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn view" onclick="viewCashier('${cashier.id}')">
+                                <i class="fas fa-eye"></i>
+                                View
+                            </button>
+                            <button class="action-btn edit" onclick="editCashier('${cashier.id}')">
+                                <i class="fas fa-edit"></i>
+                                Edit
+                            </button>
+                            <button class="action-btn delete" onclick="deleteCashier('${cashier.id}')">
+                                <i class="fas fa-trash"></i>
+                                Delete
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Update total cashiers count
+            document.getElementById('totalCashiers').textContent = cashiersData.length;
+        }
+
+        // Update summary cards
+        function updateSummaryCards() {
+            const activeCount = cashiersData.filter(c => c.status === 'active').length;
+            const inactiveCount = cashiersData.filter(c => c.status === 'inactive').length;
+            const onLeaveCount = cashiersData.filter(c => c.status === 'onleave').length;
+            
+            document.getElementById('activeCashiers').textContent = activeCount;
+            document.getElementById('inactiveCashiers').textContent = inactiveCount;
+            document.getElementById('onLeaveCashiers').textContent = onLeaveCount;
+        }
+
+        // Initialize charts
+        function initializeCharts() {
+            // Performance Chart
+            const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+            new Chart(performanceCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Ahmed Ali', 'Fatima Hassan', 'Omar Yusuf', 'Hassan Mohamed', 'Safia Abdi', 'Mohamed Ibrahim'],
+                    datasets: [{
+                        label: 'Performance Score (%)',
+                        data: [95, 98, 75, 88, 90, 82],
+                        backgroundColor: [
+                            'rgba(78, 115, 223, 0.8)',
+                            'rgba(28, 200, 138, 0.8)',
+                            'rgba(246, 194, 62, 0.8)',
+                            'rgba(231, 74, 59, 0.8)',
+                            'rgba(54, 185, 204, 0.8)',
+                            'rgba(133, 135, 150, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(78, 115, 223, 1)',
+                            'rgba(28, 200, 138, 1)',
+                            'rgba(246, 194, 62, 1)',
+                            'rgba(231, 74, 59, 1)',
+                            'rgba(54, 185, 204, 1)',
+                            'rgba(133, 135, 150, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Performance Score (%)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Status Chart
+            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Active', 'Inactive', 'On Leave'],
+                    datasets: [{
+                        data: [
+                            cashiersData.filter(c => c.status === 'active').length,
+                            cashiersData.filter(c => c.status === 'inactive').length,
+                            cashiersData.filter(c => c.status === 'onleave').length
+                        ],
+                        backgroundColor: [
+                            'rgba(28, 200, 138, 0.8)',
+                            'rgba(231, 74, 59, 0.8)',
+                            'rgba(54, 185, 204, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(28, 200, 138, 1)',
+                            'rgba(231, 74, 59, 1)',
+                            'rgba(54, 185, 204, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Search functionality
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const rows = document.querySelectorAll('#cashiersTableBody tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+
+            // Notification functionality
+            document.getElementById('notificationBtn').addEventListener('click', function() {
+                const popup = document.getElementById('notificationPopup');
+                popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+            });
+
+            document.getElementById('closeNotification').addEventListener('click', function() {
+                document.getElementById('notificationPopup').style.display = 'none';
+            });
+
+            // Close modal when clicking outside
+            document.getElementById('createCashierModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeCreateCashierModal();
+                }
+            });
+        }
+
+        // Open Create Cashier Modal
+        function openCreateCashierModal() {
+            document.getElementById('createCashierModal').style.display = 'flex';
+            
+            // Auto-generate Employee ID
+            const nextId = cashiersData.length + 1;
+            const employeeId = 'CASH-' + ('000' + nextId).slice(-3);
+            document.getElementById('employeeId').value = employeeId;
+            
+            // Set focus to first input
+            document.getElementById('firstName').focus();
+        }
+
+        // Close Create Cashier Modal
+        function closeCreateCashierModal() {
+            document.getElementById('createCashierModal').style.display = 'none';
+            document.getElementById('createCashierForm').reset();
+        }
+
+        // Toggle Password Visibility
+        function togglePassword(passwordId) {
+            const passwordField = document.getElementById(passwordId);
+            const toggleIcon = passwordField.parentElement.querySelector('i');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        // Submit Cashier Form
+        function submitCashierForm(event) {
+            event.preventDefault();
+            
+            // Get form values
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const employeeId = document.getElementById('employeeId').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const shift = document.getElementById('shift').value;
+            const salary = document.getElementById('salary').value;
+            const address = document.getElementById('address').value.trim();
+            const notes = document.getElementById('notes').value.trim();
+            
+            // Validate passwords
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+            
+            // Create new cashier object
+            const newCashier = {
+                id: employeeId,
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                phone: phone,
+                shift: shift,
+                status: 'active',
+                joinDate: new Date().toISOString().split('T')[0],
+                salary: salary ? parseInt(salary) : 0,
+                address: address,
+                notes: notes
+            };
+            
+            // Add to cashiers data
+            cashiersData.push(newCashier);
+            
+            // Update UI
+            loadCashiersTable();
+            updateSummaryCards();
+            
+            // Close modal and reset form
+            closeCreateCashierModal();
+            
+            // Show success message
+            alert(`Cashier ${firstName} ${lastName} has been created successfully!`);
+            
+            // Refresh charts
+            initializeCharts();
+        }
+
+        // Filter by status
+        function filterByStatus(status) {
+            const rows = document.querySelectorAll('#cashiersTableBody tr');
+            
+            rows.forEach(row => {
+                const statusBadge = row.querySelector('.status-badge');
+                if (statusBadge) {
+                    const rowStatus = statusBadge.textContent.toLowerCase().replace(' ', '');
+                    const targetStatus = status.toLowerCase();
+                    
+                    if (targetStatus === 'all' || rowStatus.includes(targetStatus)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // View cashier details
+        function viewCashier(cashierId) {
+            const cashier = cashiersData.find(c => c.id === cashierId);
+            if (cashier) {
+                alert(`Cashier Details:\n\nID: ${cashier.id}\nName: ${cashier.firstName} ${cashier.lastName}\nEmail: ${cashier.email}\nPhone: ${cashier.phone}\nShift: ${cashier.shift}\nStatus: ${cashier.status}\nJoin Date: ${cashier.joinDate}\nSalary: $${cashier.salary}\nAddress: ${cashier.address}\nNotes: ${cashier.notes}`);
+            }
+        }
+
+        // Edit cashier
+        function editCashier(cashierId) {
+            const cashier = cashiersData.find(c => c.id === cashierId);
+            if (cashier) {
+                // Pre-fill modal with cashier data
+                document.getElementById('firstName').value = cashier.firstName;
+                document.getElementById('lastName').value = cashier.lastName;
+                document.getElementById('email').value = cashier.email;
+                document.getElementById('phone').value = cashier.phone;
+                document.getElementById('employeeId').value = cashier.id;
+                document.getElementById('shift').value = cashier.shift;
+                document.getElementById('salary').value = cashier.salary;
+                document.getElementById('address').value = cashier.address;
+                document.getElementById('notes').value = cashier.notes;
+                
+                // Change modal title
+                document.querySelector('.modal-header h3').innerHTML = `<i class="fas fa-edit"></i> Edit Cashier: ${cashier.id}`;
+                
+                // Update submit button
+                const submitBtn = document.querySelector('.btn-submit');
+                submitBtn.innerHTML = `<i class="fas fa-save"></i> Update Cashier`;
+                submitBtn.onclick = function(e) {
+                    e.preventDefault();
+                    updateCashier(cashierId);
+                };
+                
+                // Open modal
+                openCreateCashierModal();
+            }
+        }
+
+        // Update cashier
+        function updateCashier(cashierId) {
+            const index = cashiersData.findIndex(c => c.id === cashierId);
+            if (index !== -1) {
+                // Get updated values
+                const firstName = document.getElementById('firstName').value.trim();
+                const lastName = document.getElementById('lastName').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const shift = document.getElementById('shift').value;
+                const salary = document.getElementById('salary').value;
+                const address = document.getElementById('address').value.trim();
+                const notes = document.getElementById('notes').value.trim();
+                
+                // Update cashier data
+                cashiersData[index] = {
+                    ...cashiersData[index],
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email,
+                    phone: phone,
+                    shift: shift,
+                    salary: salary ? parseInt(salary) : 0,
+                    address: address,
+                    notes: notes
+                };
+                
+                // Update UI
+                loadCashiersTable();
+                closeCreateCashierModal();
+                
+                // Show success message
+                alert(`Cashier ${firstName} ${lastName} has been updated successfully!`);
+                
+                // Reset modal for future use
+                resetCreateCashierModal();
+            }
+        }
+
+        // Delete cashier
+        function deleteCashier(cashierId) {
+            if (confirm('Are you sure you want to delete this cashier?')) {
+                const index = cashiersData.findIndex(c => c.id === cashierId);
+                if (index !== -1) {
+                    const cashierName = `${cashiersData[index].firstName} ${cashiersData[index].lastName}`;
+                    cashiersData.splice(index, 1);
+                    
+                    // Update UI
+                    loadCashiersTable();
+                    updateSummaryCards();
+                    
+                    // Show success message
+                    alert(`Cashier ${cashierName} has been deleted successfully!`);
+                    
+                    // Refresh charts
+                    initializeCharts();
+                }
+            }
+        }
+
+        // Reset create cashier modal
+        function resetCreateCashierModal() {
+            document.querySelector('.modal-header h3').innerHTML = `<i class="fas fa-user-plus"></i> Create New Cashier`;
+            const submitBtn = document.querySelector('.btn-submit');
+            submitBtn.innerHTML = `<i class="fas fa-user-plus"></i> Create Cashier`;
+            submitBtn.onclick = function(e) {
+                e.preventDefault();
+                submitCashierForm(e);
+            };
+        }
+
+        // View training schedule
+        function viewTrainingSchedule() {
+            alert('Training Schedule:\n\nMonday: New Employee Orientation\nWednesday: Customer Service Training\nFriday: POS System Training\n\nContact HR for more details.');
+        }
+
+        // View performance report
+        function viewPerformanceReport() {
+            alert('Monthly Performance Report:\n\nAverage Performance: 87%\nTop Performer: Fatima Hassan (98%)\nAreas for Improvement: Cashier Training\n\nDetailed report available in Reports section.');
+        }
+
+        // Bulk action functions
+        function selectAllCashiers() {
+            alert('Select All feature would select all cashiers for bulk actions.');
+        }
+
+        function sendBulkEmail() {
+            alert('Bulk Email feature would open email composer for selected cashiers.');
+        }
+
+        function assignTraining() {
+            alert('Assign Training feature would assign training to selected cashiers.');
+        }
+
+        function deactivateSelected() {
+            if (confirm('Are you sure you want to deactivate selected cashiers?')) {
+                alert('Selected cashiers have been deactivated.');
+            }
+        }
+
+        function exportCashiersList() {
+            alert('Exporting cashiers list to CSV file...');
+            // In a real application, this would generate and download a CSV file
+        }
+    </script>
+</body>
+</html>

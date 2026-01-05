@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View My Sales - Pharmacy System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            background-color: #f8f9fc;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        /* Sidebar styles (same as dashboard) */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #1cc88a 0%, #138a62 100%);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            z-index: 1000;
+        }
+
+        .logo {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .logo h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .user-info i {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+
+        .user-info div {
+            flex: 1;
+        }
+
+        .user-info h3 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .user-info p {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .menu li {
+            padding: 0;
+        }
+
+        .menu li a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+        }
+
+        .menu li a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #f8f9fc;
+        }
+
+        .menu li.active a {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #f8f9fc;
+        }
+
+        .menu li a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        #logoutBtn {
+            margin-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            padding-top: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            margin-bottom: 30px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: #f8f9fc;
+            padding: 10px 15px;
+            border-radius: 50px;
+            width: 300px;
+        }
+
+        .search-bar i {
+            color: #6e707e;
+            margin-right: 10px;
+        }
+
+        .search-bar input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .date-display {
+            font-weight: 600;
+            color: #1cc88a;
+            font-size: 0.9rem;
+        }
+
+        /* Page Title */
+        .page-title {
+            color: #5a5c69;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-title i {
+            color: #1cc88a;
+        }
+
+        /* Filters */
+        .filters-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .filters-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #5a5c69;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .filter-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #e3e6f0;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .btn-filter {
+            background: #1cc88a;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-filter:hover {
+            background: #17a673;
+        }
+
+        .btn-reset {
+            background: #858796;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-reset:hover {
+            background: #6e707e;
+        }
+
+        /* Summary Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+            font-size: 1.3rem;
+        }
+
+        .card-info h3 {
+            font-size: 0.85rem;
+            color: #858796;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .card-info h2 {
+            font-size: 1.5rem;
+            color: #5a5c69;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .card-info p {
+            font-size: 0.75rem;
+            color: #858796;
+        }
+
+        /* Sales Table */
+        .sales-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 40px;
+        }
+
+        .table-header {
+            background: linear-gradient(to right, #1cc88a, #138a62);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: #f8f9fc;
+        }
+
+        th {
+            padding: 12px 15px;
+            text-align: left;
+            color: #5a5c69;
+            font-weight: 600;
+            border-bottom: 2px solid #e3e6f0;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e3e6f0;
+            color: #858796;
+        }
+
+        tbody tr {
+            transition: background 0.3s;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fc;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-paid {
+            background: #d1f7e5;
+            color: #0f5132;
+        }
+
+        .status-credit {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: #4e73df;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .action-btn.view {
+            background: #36b9cc;
+        }
+
+        .action-btn.view:hover {
+            background: #2c9faf;
+        }
+
+        .action-btn.print {
+            background: #f6c23e;
+        }
+
+        .action-btn.print:hover {
+            background: #f4b30d;
+        }
+
+        /* Charts Section */
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+        }
+
+        .chart-container h3 {
+            color: #5a5c69;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-container canvas {
+            width: 100% !important;
+            height: 300px !important;
+        }
+
+        /* Export Section */
+        .export-container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+        }
+
+        .export-container h3 {
+            color: #5a5c69;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            background: #1cc88a;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+
+        .export-btn:hover {
+            background: #17a673;
+        }
+
+        .export-btn.pdf {
+            background: #e74a3b;
+        }
+
+        .export-btn.pdf:hover {
+            background: #d52a1a;
+        }
+
+        .export-btn.excel {
+            background: #1cc88a;
+        }
+
+        .export-btn.excel:hover {
+            background: #17a673;
+        }
+
+        .export-btn.print {
+            background: #36b9cc;
+        }
+
+        .export-btn.print:hover {
+            background: #2c9faf;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .sidebar .logo h2,
+            .user-info div,
+            .menu li a span {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+            }
+            
+            .logo i {
+                margin-bottom: 0;
+            }
+            
+            .user-info {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .user-info i {
+                margin-right: 0;
+                font-size: 2rem;
+            }
+            
+            .menu li a {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .menu li a i {
+                margin-right: 0;
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .search-bar {
+                width: 100%;
+            }
+            
+            .filters-row {
+                flex-direction: column;
+            }
+            
+            .summary-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .chart-container canvas {
+                height: 250px !important;
+            }
+            
+            .export-buttons {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 15px;
+            }
+            
+            .sidebar {
+                width: 60px;
+            }
+            
+            .main-content {
+                margin-left: 60px;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .card-icon {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+            
+            .action-btns {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-clinic-medical"></i>
+            <h2>Pharmacy Cashier</h2>
+        </div>
+        
+        <div class="user-info">
+            <i class="fas fa-user-circle"></i>
+            <div>
+                <h3 id="cashierName">Ahmed Ali</h3>
+                <p>Cashier ID: CASH-001</p>
+            </div>
+        </div>
+        
+        <ul class="menu">
+            <li><a href="Dashboard_Cashier.html"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+            <li><a href="Register_Medicines.html"><i class="fas fa-pills"></i> <span>Register Medicines</span></a></li>
+            <li><a href="Register_Suppliers.html"><i class="fas fa-truck"></i> <span>Register Suppliers</span></a></li>
+            <li><a href="Sell_Medicines_Cash_Credit.html"><i class="fas fa-shopping-cart"></i> <span>Sell Medicines</span></a></li>
+            <li><a href="Manage_Customer_Debts.html"><i class="fas fa-file-invoice-dollar"></i> <span>Customer Debts</span></a></li>
+            <li class="active"><a href="View_Own_Sales.html"><i class="fas fa-chart-line"></i> <span>View My Sales</span></a></li>
+            <li><a href="index.html" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search sales by invoice or customer...">
+            </div>
+            <div class="header-actions">
+                <div class="date-display">
+                    <span id="currentDate">Loading...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <h1 class="page-title">
+            <i class="fas fa-chart-line"></i>
+            My Sales History
+        </h1>
+        
+        <!-- Filters -->
+        <div class="filters-container">
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label>Date Range</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="date" id="startDate" class="filter-input">
+                        <input type="date" id="endDate" class="filter-input">
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Payment Method</label>
+                    <select id="paymentMethodFilter" class="filter-input">
+                        <option value="">All Methods</option>
+                        <option value="cash">Cash</option>
+                        <option value="credit">Credit</option>
+                        <option value="mobile">Mobile Money</option>
+                        <option value="card">Card</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Customer</label>
+                    <select id="customerFilter" class="filter-input">
+                        <option value="">All Customers</option>
+                        <option value="Mohamed Ahmed">Mohamed Ahmed</option>
+                        <option value="Fatima Hassan">Fatima Hassan</option>
+                        <option value="Omar Yusuf">Omar Yusuf</option>
+                        <option value="Walk-in">Walk-in Customer</option>
+                    </select>
+                </div>
+                
+                <div class="filter-actions">
+                    <button class="btn-filter" onclick="applyFilters()">
+                        <i class="fas fa-filter"></i>
+                        Apply Filters
+                    </button>
+                    <button class="btn-reset" onclick="resetFilters()">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+            <div class="summary-card">
+                <div class="card-icon" style="background-color: #1cc88a;">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Today's Sales</h3>
+                    <h2 id="todaySales">$1,250.75</h2>
+                    <p>5 transactions</p>
+                </div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="card-icon" style="background-color: #36b9cc;">
+                    <i class="fas fa-calendar-week"></i>
+                </div>
+                <div class="card-info">
+                    <h3>This Week</h3>
+                    <h2 id="weekSales">$3,850.25</h2>
+                    <p>22 transactions</p>
+                </div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="card-icon" style="background-color: #4e73df;">
+                    <i class="fas fa-calendar-month"></i>
+                </div>
+                <div class="card-info">
+                    <h3>This Month</h3>
+                    <h2 id="monthSales">$15,800.50</h2>
+                    <p>68 transactions</p>
+                </div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="card-icon" style="background-color: #f6c23e;">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Credit Sales</h3>
+                    <h2 id="creditSales">$2,450.00</h2>
+                    <p>12 pending payments</p>
+                </div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="card-icon" style="background-color: #e74a3b;">
+                    <i class="fas fa-undo"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Returns</h3>
+                    <h2 id="returns">$125.50</h2>
+                    <p>3 returned items</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sales Table -->
+        <div class="sales-container">
+            <div class="table-header">
+                <h3><i class="fas fa-history"></i> Sales History</h3>
+                <span style="font-size: 0.9rem;">Showing <strong id="showingCount">0</strong> of <strong id="totalCount">0</strong> sales</span>
+            </div>
+            <table id="salesTable">
+                <thead>
+                    <tr>
+                        <th>Invoice #</th>
+                        <th>Customer</th>
+                        <th>Items</th>
+                        <th>Total Amount</th>
+                        <th>Payment Method</th>
+                        <th>Date & Time</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="salesTableBody">
+                    <!-- Sales data will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="chart-container">
+                <h3><i class="fas fa-chart-bar"></i> Daily Sales Performance</h3>
+                <canvas id="dailyChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <h3><i class="fas fa-chart-pie"></i> Sales by Payment Method</h3>
+                <canvas id="paymentChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Export Section -->
+        <div class="export-container">
+            <h3><i class="fas fa-download"></i> Export Sales Data</h3>
+            <div class="export-buttons">
+                <button class="export-btn excel" onclick="exportToExcel()">
+                    <i class="fas fa-file-excel"></i>
+                    Export to Excel
+                </button>
+                <button class="export-btn pdf" onclick="exportToPDF()">
+                    <i class="fas fa-file-pdf"></i>
+                    Export to PDF
+                </button>
+                <button class="export-btn print" onclick="printReport()">
+                    <i class="fas fa-print"></i>
+                    Print Report
+                </button>
+                <button class="export-btn" onclick="emailReport()">
+                    <i class="fas fa-envelope"></i>
+                    Email Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample sales data
+        let salesData = [
+            { id: 1, invoice: 'INV-2024-001', customer: 'Mohamed Ahmed', items: 3, amount: 45.50, method: 'cash', datetime: '2024-03-20 10:30', status: 'paid' },
+            { id: 2, invoice: 'INV-2024-002', customer: 'Fatima Hassan', items: 5, amount: 120.75, method: 'credit', datetime: '2024-03-20 11:15', status: 'pending' },
+            { id: 3, invoice: 'INV-2024-003', customer: 'Omar Yusuf', items: 2, amount: 25.00, method: 'cash', datetime: '2024-03-20 12:45', status: 'paid' },
+            { id: 4, invoice: 'INV-2024-004', customer: 'Hassan Mohamed', items: 4, amount: 85.25, method: 'mobile', datetime: '2024-03-20 14:20', status: 'paid' },
+            { id: 5, invoice: 'INV-2024-005', customer: 'Walk-in Customer', items: 1, amount: 15.50, method: 'cash', datetime: '2024-03-20 15:30', status: 'paid' },
+            { id: 6, invoice: 'INV-2024-006', customer: 'Yusuf Ali', items: 6, amount: 210.00, method: 'cash', datetime: '2024-03-20 16:45', status: 'paid' },
+            { id: 7, invoice: 'INV-2024-007', customer: 'Naima Omar', items: 3, amount: 95.50, method: 'credit', datetime: '2024-03-19 09:15', status: 'pending' },
+            { id: 8, invoice: 'INV-2024-008', customer: 'Aisha Abdi', items: 2, amount: 42.75, method: 'card', datetime: '2024-03-19 10:45', status: 'paid' },
+            { id: 9, invoice: 'INV-2024-009', customer: 'Walk-in Customer', items: 4, amount: 68.90, method: 'cash', datetime: '2024-03-19 13:30', status: 'paid' },
+            { id: 10, invoice: 'INV-2024-010', customer: 'Khadija Hassan', items: 5, amount: 155.25, method: 'mobile', datetime: '2024-03-18 11:00', status: 'paid' }
+        ];
+
+        // Filtered sales data
+        let filteredSales = [...salesData];
+
+        // DOM Content Loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCurrentDate();
+            loadSalesTable();
+            updateSummaryCards();
+            initializeCharts();
+            setupEventListeners();
+            
+            // Set default date range (last 7 days)
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 7);
+            
+            document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+            document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+        });
+
+        // Update current date
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        // Load sales table
+        function loadSalesTable() {
+            const tableBody = document.getElementById('salesTableBody');
+            tableBody.innerHTML = '';
+
+            filteredSales.forEach(sale => {
+                const row = document.createElement('tr');
+                
+                // Get status class
+                let statusClass = sale.status === 'paid' ? 'status-paid' : 'status-credit';
+                let statusText = sale.status === 'paid' ? 'Paid' : 'Credit';
+                
+                // Format datetime
+                const saleDate = new Date(sale.datetime.replace(' ', 'T'));
+                const formattedDate = saleDate.toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                row.innerHTML = `
+                    <td>${sale.invoice}</td>
+                    <td>${sale.customer}</td>
+                    <td>${sale.items} items</td>
+                    <td>$${sale.amount.toFixed(2)}</td>
+                    <td>${sale.method.charAt(0).toUpperCase() + sale.method.slice(1)}</td>
+                    <td>${formattedDate}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn view" onclick="viewSaleDetails(${sale.id})">
+                                <i class="fas fa-eye"></i>
+                                View
+                            </button>
+                            <button class="action-btn print" onclick="printInvoice(${sale.id})">
+                                <i class="fas fa-print"></i>
+                                Print
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Update counts
+            document.getElementById('showingCount').textContent = filteredSales.length;
+            document.getElementById('totalCount').textContent = salesData.length;
+        }
+
+        // Update summary cards
+        function updateSummaryCards() {
+            const today = new Date().toISOString().split('T')[0];
+            
+            // Today's sales
+            const todaySales = filteredSales
+                .filter(sale => sale.datetime.startsWith(today))
+                .reduce((sum, sale) => sum + sale.amount, 0);
+            const todayCount = filteredSales.filter(sale => sale.datetime.startsWith(today)).length;
+            
+            // This week's sales (last 7 days)
+            const weekAgo = new Date();
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            const weekSales = filteredSales
+                .filter(sale => new Date(sale.datetime.replace(' ', 'T')) >= weekAgo)
+                .reduce((sum, sale) => sum + sale.amount, 0);
+            const weekCount = filteredSales.filter(sale => new Date(sale.datetime.replace(' ', 'T')) >= weekAgo).length;
+            
+            // This month's sales
+            const monthStart = new Date();
+            monthStart.setDate(1);
+            monthStart.setHours(0, 0, 0, 0);
+            const monthSales = filteredSales
+                .filter(sale => new Date(sale.datetime.replace(' ', 'T')) >= monthStart)
+                .reduce((sum, sale) => sum + sale.amount, 0);
+            const monthCount = filteredSales.filter(sale => new Date(sale.datetime.replace(' ', 'T')) >= monthStart).length;
+            
+            // Credit sales
+            const creditSales = filteredSales
+                .filter(sale => sale.status === 'pending')
+                .reduce((sum, sale) => sum + sale.amount, 0);
+            const creditCount = filteredSales.filter(sale => sale.status === 'pending').length;
+            
+            document.getElementById('todaySales').textContent = `$${todaySales.toFixed(2)}`;
+            document.getElementById('todaySales').nextElementSibling.textContent = `${todayCount} transactions`;
+            
+            document.getElementById('weekSales').textContent = `$${weekSales.toFixed(2)}`;
+            document.getElementById('weekSales').nextElementSibling.textContent = `${weekCount} transactions`;
+            
+            document.getElementById('monthSales').textContent = `$${monthSales.toFixed(2)}`;
+            document.getElementById('monthSales').nextElementSibling.textContent = `${monthCount} transactions`;
+            
+            document.getElementById('creditSales').textContent = `$${creditSales.toFixed(2)}`;
+            document.getElementById('creditSales').nextElementSibling.textContent = `${creditCount} pending payments`;
+        }
+
+        // Initialize charts
+        function initializeCharts() {
+            // Daily Sales Chart
+            const dailyCtx = document.getElementById('dailyChart').getContext('2d');
+            new Chart(dailyCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Sales Amount ($)',
+                        data: [850, 920, 1250, 1100, 980, 1500, 1300],
+                        backgroundColor: 'rgba(28, 200, 138, 0.8)',
+                        borderColor: 'rgba(28, 200, 138, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Amount ($)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Payment Method Chart
+            const paymentCtx = document.getElementById('paymentChart').getContext('2d');
+            
+            // Calculate totals by payment method
+            const methods = ['cash', 'credit', 'mobile', 'card'];
+            const methodTotals = methods.map(method => 
+                filteredSales
+                    .filter(sale => sale.method === method)
+                    .reduce((sum, sale) => sum + sale.amount, 0)
+            );
+            
+            new Chart(paymentCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Cash', 'Credit', 'Mobile Money', 'Card'],
+                    datasets: [{
+                        data: methodTotals,
+                        backgroundColor: [
+                            '#1cc88a',
+                            '#f6c23e',
+                            '#4e73df',
+                            '#36b9cc'
+                        ],
+                        borderColor: [
+                            '#17a673',
+                            '#dda20a',
+                            '#224abe',
+                            '#2c9faf'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Search functionality
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const rows = document.querySelectorAll('#salesTableBody tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const paymentMethod = document.getElementById('paymentMethodFilter').value;
+            const customer = document.getElementById('customerFilter').value;
+            
+            filteredSales = salesData.filter(sale => {
+                // Date filter
+                const saleDate = new Date(sale.datetime.replace(' ', 'T')).toISOString().split('T')[0];
+                if (startDate && saleDate < startDate) return false;
+                if (endDate && saleDate > endDate) return false;
+                
+                // Payment method filter
+                if (paymentMethod && sale.method !== paymentMethod) return false;
+                
+                // Customer filter
+                if (customer && sale.customer !== customer) return false;
+                
+                return true;
+            });
+            
+            loadSalesTable();
+            updateSummaryCards();
+            initializeCharts();
+        }
+
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            document.getElementById('paymentMethodFilter').value = '';
+            document.getElementById('customerFilter').value = '';
+            document.getElementById('searchInput').value = '';
+            
+            filteredSales = [...salesData];
+            loadSalesTable();
+            updateSummaryCards();
+            initializeCharts();
+        }
+
+        // View sale details
+        function viewSaleDetails(saleId) {
+            const sale = salesData.find(s => s.id === saleId);
+            if (sale) {
+                const saleDate = new Date(sale.datetime.replace(' ', 'T'));
+                const formattedDate = saleDate.toLocaleString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                alert(`Sale Details:\n\nInvoice: ${sale.invoice}\nCustomer: ${sale.customer}\nItems: ${sale.items}\nTotal Amount: $${sale.amount.toFixed(2)}\nPayment Method: ${sale.method}\nDate & Time: ${formattedDate}\nStatus: ${sale.status}\nCashier: ${document.getElementById('cashierName').textContent}`);
+            }
+        }
+
+        // Print invoice
+        function printInvoice(saleId) {
+            const sale = salesData.find(s => s.id === saleId);
+            if (sale) {
+                // In a real app, this would open print dialog with formatted invoice
+                alert(`Printing invoice ${sale.invoice}...`);
+            }
+        }
+
+        // Export to Excel
+        function exportToExcel() {
+            alert('Exporting sales data to Excel file...');
+            // In a real app, this would generate and download Excel file
+        }
+
+        // Export to PDF
+        function exportToPDF() {
+            alert('Exporting sales report to PDF...');
+            // In a real app, this would generate and download PDF
+        }
+
+        // Print report
+        function printReport() {
+            window.print();
+        }
+
+        // Email report
+        function emailReport() {
+            alert('Sending sales report via email...');
+            // In a real app, this would open email composer with report attached
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = 'cashier_login.html';
+            }
+        }
+
+        // Add logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            logout();
+        });
+    </script>
+</body>
+</html>

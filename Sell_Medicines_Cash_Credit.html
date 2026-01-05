@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sell Medicines - Pharmacy System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            background-color: #f8f9fc;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        /* Sidebar styles (same as dashboard) */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #1cc88a 0%, #138a62 100%);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            z-index: 1000;
+        }
+
+        .logo {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .logo h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .user-info i {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+
+        .user-info div {
+            flex: 1;
+        }
+
+        .user-info h3 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .user-info p {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .menu li {
+            padding: 0;
+        }
+
+        .menu li a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+        }
+
+        .menu li a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #f8f9fc;
+        }
+
+        .menu li.active a {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #f8f9fc;
+        }
+
+        .menu li a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        #logoutBtn {
+            margin-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            padding-top: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            margin-bottom: 30px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: #f8f9fc;
+            padding: 10px 15px;
+            border-radius: 50px;
+            width: 300px;
+        }
+
+        .search-bar i {
+            color: #6e707e;
+            margin-right: 10px;
+        }
+
+        .search-bar input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .date-display {
+            font-weight: 600;
+            color: #1cc88a;
+            font-size: 0.9rem;
+        }
+
+        /* Page Title */
+        .page-title {
+            color: #5a5c69;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-title i {
+            color: #1cc88a;
+        }
+
+        /* Sale Container */
+        .sale-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        /* Left Panel - Cart Items */
+        .cart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e3e6f0;
+        }
+
+        .cart-header h3 {
+            color: #5a5c69;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cart-items {
+            min-height: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .cart-item {
+            display: grid;
+            grid-template-columns: 3fr 1fr 1fr 1fr 1fr;
+            gap: 15px;
+            padding: 15px;
+            border-bottom: 1px solid #e3e6f0;
+            align-items: center;
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-name {
+            font-weight: 600;
+            color: #5a5c69;
+        }
+
+        .item-price {
+            color: #858796;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 1px solid #e3e6f0;
+            background: white;
+            color: #5a5c69;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quantity-btn:hover {
+            background: #f8f9fc;
+        }
+
+        .quantity-input {
+            width: 50px;
+            text-align: center;
+            padding: 5px;
+            border: 1px solid #e3e6f0;
+            border-radius: 4px;
+        }
+
+        .remove-btn {
+            background: #e74a3b;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .remove-btn:hover {
+            background: #d52a1a;
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 50px;
+            color: #858796;
+        }
+
+        .empty-cart i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #e3e6f0;
+        }
+
+        /* Right Panel - Payment */
+        .payment-container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .payment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e3e6f0;
+        }
+
+        .payment-header h3 {
+            color: #5a5c69;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .customer-info {
+            margin-bottom: 20px;
+        }
+
+        .customer-info h4 {
+            color: #5a5c69;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .customer-search {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .customer-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #e3e6f0;
+            border-radius: 6px;
+        }
+
+        .customer-btn {
+            background: #4e73df;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .customer-btn:hover {
+            background: #224abe;
+        }
+
+        .payment-summary {
+            background: #f8f9fc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #5a5c69;
+        }
+
+        .summary-row.total {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1cc88a;
+            border-top: 2px solid #e3e6f0;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+
+        .payment-methods {
+            margin-bottom: 20px;
+        }
+
+        .payment-methods h4 {
+            color: #5a5c69;
+            margin-bottom: 10px;
+        }
+
+        .method-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .method-btn {
+            padding: 12px;
+            border: 2px solid #e3e6f0;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .method-btn:hover {
+            border-color: #1cc88a;
+            background: #f8f9fc;
+        }
+
+        .method-btn.active {
+            border-color: #1cc88a;
+            background: #e8f7f1;
+        }
+
+        .method-btn i {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            color: #1cc88a;
+        }
+
+        .cash-payment {
+            margin-top: 20px;
+        }
+
+        .cash-payment h4 {
+            color: #5a5c69;
+            margin-bottom: 10px;
+        }
+
+        .cash-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e3e6f0;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .change-display {
+            background: #f8f9fc;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+            color: #1cc88a;
+        }
+
+        .credit-details {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .credit-details h4 {
+            color: #5a5c69;
+            margin-bottom: 10px;
+        }
+
+        .credit-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e3e6f0;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn-cancel {
+            background: #858796;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .btn-cancel:hover {
+            background: #6e707e;
+        }
+
+        .btn-complete {
+            background: #1cc88a;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-complete:hover {
+            background: #17a673;
+        }
+
+        /* Medicines Grid */
+        .medicines-grid {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .medicines-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e3e6f0;
+        }
+
+        .medicines-header h3 {
+            color: #5a5c69;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .medicines-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .medicine-card {
+            background: #f8f9fc;
+            border-radius: 8px;
+            padding: 15px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .medicine-card:hover {
+            border-color: #1cc88a;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .medicine-card h4 {
+            color: #5a5c69;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .medicine-card p {
+            color: #858796;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+
+        .medicine-price {
+            color: #1cc88a;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .medicine-stock {
+            font-size: 0.8rem;
+            color: #e74a3b;
+            margin-bottom: 10px;
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            padding: 8px;
+            background: #1cc88a;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .add-to-cart-btn:hover {
+            background: #17a673;
+        }
+
+        .add-to-cart-btn:disabled {
+            background: #858796;
+            cursor: not-allowed;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .sale-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .sidebar .logo h2,
+            .user-info div,
+            .menu li a span {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+            }
+            
+            .logo i {
+                margin-bottom: 0;
+            }
+            
+            .user-info {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .user-info i {
+                margin-right: 0;
+                font-size: 2rem;
+            }
+            
+            .menu li a {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .menu li a i {
+                margin-right: 0;
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .search-bar {
+                width: 100%;
+            }
+            
+            .cart-item {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .method-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .medicines-list {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 15px;
+            }
+            
+            .sidebar {
+                width: 60px;
+            }
+            
+            .main-content {
+                margin-left: 60px;
+            }
+            
+            .cart-container,
+            .payment-container,
+            .medicines-grid {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-clinic-medical"></i>
+            <h2>Pharmacy Cashier</h2>
+        </div>
+        
+        <div class="user-info">
+            <i class="fas fa-user-circle"></i>
+            <div>
+                <h3 id="cashierName">Ahmed Ali</h3>
+                <p>Cashier ID: CASH-001</p>
+            </div>
+        </div>
+        
+        <ul class="menu">
+            <li><a href="Dashboard_Cashier.html"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+            <li><a href="Register_Medicines.html"><i class="fas fa-pills"></i> <span>Register Medicines</span></a></li>
+            <li><a href="Register_Suppliers.html"><i class="fas fa-truck"></i> <span>Register Suppliers</span></a></li>
+            <li class="active"><a href="Sell_Medicines_Cash_Credit.html"><i class="fas fa-shopping-cart"></i> <span>Sell Medicines</span></a></li>
+            <li><a href="Manage_Customer_Debts.html"><i class="fas fa-file-invoice-dollar"></i> <span>Customer Debts</span></a></li>
+            <li><a href="View_Own_Sales.html"><i class="fas fa-chart-line"></i> <span>View My Sales</span></a></li>
+            <li><a href="index.html" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search medicines...">
+            </div>
+            <div class="header-actions">
+                <div class="date-display">
+                    <span id="currentDate">Loading...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <h1 class="page-title">
+            <i class="fas fa-shopping-cart"></i>
+            Sell Medicines
+        </h1>
+        
+        <!-- Sale Container -->
+        <div class="sale-container">
+            <!-- Left Panel - Cart -->
+            <div class="cart-container">
+                <div class="cart-header">
+                    <h3><i class="fas fa-shopping-cart"></i> Shopping Cart</h3>
+                    <button class="remove-btn" onclick="clearCart()">Clear All</button>
+                </div>
+                
+                <div class="cart-items" id="cartItems">
+                    <!-- Cart items will be loaded here -->
+                    <div class="empty-cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <p>Your cart is empty</p>
+                        <p>Add medicines from the list below</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Payment -->
+            <div class="payment-container">
+                <div class="payment-header">
+                    <h3><i class="fas fa-credit-card"></i> Payment</h3>
+                    <span id="invoiceNumber">INV-001</span>
+                </div>
+                
+                <div class="customer-info">
+                    <h4>Customer Information</h4>
+                    <div class="customer-search">
+                        <input type="text" class="customer-input" id="customerName" placeholder="Enter customer name">
+                        <button class="customer-btn" onclick="addCustomer()">Add</button>
+                    </div>
+                    <div id="customerDisplay" style="display: none;">
+                        <p style="color: #5a5c69; font-size: 0.9rem;">Customer: <strong id="currentCustomer"></strong></p>
+                    </div>
+                </div>
+                
+                <div class="payment-summary">
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">$0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Tax (0%):</span>
+                        <span id="tax">$0.00</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total:</span>
+                        <span id="totalAmount">$0.00</span>
+                    </div>
+                </div>
+                
+                <div class="payment-methods">
+                    <h4>Payment Method</h4>
+                    <div class="method-options">
+                        <button class="method-btn active" onclick="selectPaymentMethod('cash')">
+                            <i class="fas fa-money-bill-wave"></i>
+                            Cash
+                        </button>
+                        <button class="method-btn" onclick="selectPaymentMethod('credit')">
+                            <i class="fas fa-credit-card"></i>
+                            Credit
+                        </button>
+                        <button class="method-btn" onclick="selectPaymentMethod('mobile')">
+                            <i class="fas fa-mobile-alt"></i>
+                            Mobile Money
+                        </button>
+                        <button class="method-btn" onclick="selectPaymentMethod('card')">
+                            <i class="fas fa-credit-card"></i>
+                            Card
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Cash Payment Details -->
+                <div class="cash-payment" id="cashPayment">
+                    <h4>Cash Payment</h4>
+                    <input type="number" class="cash-input" id="cashReceived" placeholder="Amount Received" min="0" step="0.01">
+                    <div class="change-display" id="changeAmount">
+                        Change: $0.00
+                    </div>
+                </div>
+                
+                <!-- Credit Payment Details -->
+                <div class="credit-details" id="creditDetails">
+                    <h4>Credit Details</h4>
+                    <input type="date" class="credit-input" id="dueDate" placeholder="Due Date">
+                    <textarea class="credit-input" id="creditNotes" placeholder="Credit terms and notes" rows="3"></textarea>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn-cancel" onclick="cancelSale()">Cancel Sale</button>
+                    <button class="btn-complete" onclick="completeSale()">
+                        <i class="fas fa-check-circle"></i>
+                        Complete Sale
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Medicines Grid -->
+        <div class="medicines-grid">
+            <div class="medicines-header">
+                <h3><i class="fas fa-pills"></i> Available Medicines</h3>
+                <span style="color: #858796; font-size: 0.9rem;" id="medicinesCount">0 medicines</span>
+            </div>
+            
+            <div class="medicines-list" id="medicinesList">
+                <!-- Medicines will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample medicines data
+        const medicinesData = [
+            { id: 'MED-001', name: 'Paracetamol 500mg', category: 'Painkillers', price: 0.50, stock: 150, description: 'For fever and pain relief' },
+            { id: 'MED-002', name: 'Amoxicillin 250mg', category: 'Antibiotics', price: 0.80, stock: 80, description: 'Antibiotic capsules' },
+            { id: 'MED-003', name: 'Vitamin C 1000mg', category: 'Vitamins', price: 0.60, stock: 25, description: 'Immune system booster' },
+            { id: 'MED-004', name: 'Metformin 500mg', category: 'Diabetes', price: 0.45, stock: 0, description: 'Diabetes medication' },
+            { id: 'MED-005', name: 'Losartan 50mg', category: 'Blood Pressure', price: 0.70, stock: 60, description: 'Blood pressure control' },
+            { id: 'MED-006', name: 'Ibuprofen 400mg', category: 'Painkillers', price: 0.55, stock: 45, description: 'Anti-inflammatory pain relief' },
+            { id: 'MED-007', name: 'Cetirizine 10mg', category: 'Allergy', price: 0.40, stock: 30, description: 'Antihistamine for allergies' },
+            { id: 'MED-008', name: 'Omeprazole 20mg', category: 'Acid Reflux', price: 0.65, stock: 20, description: 'Acid reflux medication' }
+        ];
+
+        // Cart data
+        let cart = [];
+        let currentPaymentMethod = 'cash';
+        let currentCustomer = '';
+
+        // DOM Content Loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCurrentDate();
+            loadMedicines();
+            updateCartDisplay();
+            generateInvoiceNumber();
+            setupEventListeners();
+        });
+
+        // Update current date
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+            
+            // Set due date to 30 days from now for credit sales
+            const dueDate = new Date();
+            dueDate.setDate(dueDate.getDate() + 30);
+            document.getElementById('dueDate').value = dueDate.toISOString().split('T')[0];
+        }
+
+        // Generate invoice number
+        function generateInvoiceNumber() {
+            const today = new Date();
+            const dateStr = today.toISOString().split('T')[0].replace(/-/g, '');
+            const randomNum = Math.floor(Math.random() * 1000);
+            const invoiceNum = `INV-${dateStr}-${randomNum}`;
+            document.getElementById('invoiceNumber').textContent = invoiceNum;
+            return invoiceNum;
+        }
+
+        // Load medicines
+        function loadMedicines() {
+            const medicinesList = document.getElementById('medicinesList');
+            medicinesList.innerHTML = '';
+
+            medicinesData.forEach(medicine => {
+                const medicineCard = document.createElement('div');
+                medicineCard.className = 'medicine-card';
+                medicineCard.onclick = () => addToCart(medicine.id);
+                
+                const isOutOfStock = medicine.stock <= 0;
+                
+                medicineCard.innerHTML = `
+                    <h4>${medicine.name}</h4>
+                    <p>${medicine.description}</p>
+                    <div class="medicine-price">$${medicine.price.toFixed(2)}</div>
+                    ${isOutOfStock ? 
+                        '<div class="medicine-stock">Out of Stock</div>' : 
+                        `<div style="color: #1cc88a; font-size: 0.8rem; margin-bottom: 10px;">Stock: ${medicine.stock}</div>`
+                    }
+                    <button class="add-to-cart-btn" ${isOutOfStock ? 'disabled' : ''}>
+                        ${isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+                    </button>
+                `;
+                
+                medicinesList.appendChild(medicineCard);
+            });
+            
+            // Update medicines count
+            document.getElementById('medicinesCount').textContent = `${medicinesData.length} medicines`;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Search functionality
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const medicineCards = document.querySelectorAll('.medicine-card');
+                
+                medicineCards.forEach(card => {
+                    const text = card.textContent.toLowerCase();
+                    card.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+
+            // Cash received input
+            document.getElementById('cashReceived').addEventListener('input', function() {
+                calculateChange();
+            });
+        }
+
+        // Add to cart
+        function addToCart(medicineId) {
+            const medicine = medicinesData.find(m => m.id === medicineId);
+            if (!medicine) return;
+
+            // Check if medicine is in stock
+            if (medicine.stock <= 0) {
+                alert(`${medicine.name} is out of stock!`);
+                return;
+            }
+
+            // Check if already in cart
+            const existingItem = cart.find(item => item.id === medicineId);
+            
+            if (existingItem) {
+                // Check if we have enough stock
+                if (existingItem.quantity >= medicine.stock) {
+                    alert(`Cannot add more ${medicine.name}. Only ${medicine.stock} available in stock.`);
+                    return;
+                }
+                existingItem.quantity += 1;
+            } else {
+                // Add new item to cart
+                cart.push({
+                    id: medicine.id,
+                    name: medicine.name,
+                    price: medicine.price,
+                    quantity: 1,
+                    stock: medicine.stock
+                });
+            }
+            
+            updateCartDisplay();
+            updatePaymentSummary();
+        }
+
+        // Update cart display
+        function updateCartDisplay() {
+            const cartItems = document.getElementById('cartItems');
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = `
+                    <div class="empty-cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <p>Your cart is empty</p>
+                        <p>Add medicines from the list below</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let cartHTML = '';
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                cartHTML += `
+                    <div class="cart-item">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-price">$${item.price.toFixed(2)}</div>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="updateQuantity(${index}, -1)">-</button>
+                            <input type="number" class="quantity-input" value="${item.quantity}" 
+                                   min="1" max="${item.stock}" 
+                                   onchange="updateQuantityInput(${index}, this.value)">
+                            <button class="quantity-btn" onclick="updateQuantity(${index}, 1)">+</button>
+                        </div>
+                        <div>$${itemTotal.toFixed(2)}</div>
+                        <button class="remove-btn" onclick="removeFromCart(${index})">Remove</button>
+                    </div>
+                `;
+            });
+            
+            cartItems.innerHTML = cartHTML;
+        }
+
+        // Update quantity
+        function updateQuantity(index, change) {
+            const item = cart[index];
+            const newQuantity = item.quantity + change;
+            
+            if (newQuantity < 1) {
+                removeFromCart(index);
+                return;
+            }
+            
+            if (newQuantity > item.stock) {
+                alert(`Cannot add more ${item.name}. Only ${item.stock} available in stock.`);
+                return;
+            }
+            
+            item.quantity = newQuantity;
+            updateCartDisplay();
+            updatePaymentSummary();
+        }
+
+        // Update quantity from input
+        function updateQuantityInput(index, value) {
+            const quantity = parseInt(value);
+            if (isNaN(quantity) || quantity < 1) {
+                updateCartDisplay();
+                return;
+            }
+            
+            const item = cart[index];
+            if (quantity > item.stock) {
+                alert(`Cannot add more ${item.name}. Only ${item.stock} available in stock.`);
+                item.quantity = item.stock;
+            } else {
+                item.quantity = quantity;
+            }
+            
+            updateCartDisplay();
+            updatePaymentSummary();
+        }
+
+        // Remove from cart
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartDisplay();
+            updatePaymentSummary();
+        }
+
+        // Clear cart
+        function clearCart() {
+            if (cart.length === 0) return;
+            
+            if (confirm('Are you sure you want to clear the cart?')) {
+                cart = [];
+                updateCartDisplay();
+                updatePaymentSummary();
+            }
+        }
+
+        // Update payment summary
+        function updatePaymentSummary() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = subtotal * 0; // 0% tax for now
+            const total = subtotal + tax;
+            
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('tax').textContent = `$${tax.toFixed(2)}`;
+            document.getElementById('totalAmount').textContent = `$${total.toFixed(2)}`;
+            
+            // Update change calculation
+            calculateChange();
+        }
+
+        // Select payment method
+        function selectPaymentMethod(method) {
+            currentPaymentMethod = method;
+            
+            // Update button styles
+            document.querySelectorAll('.method-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Show/hide payment details
+            document.getElementById('cashPayment').style.display = method === 'cash' ? 'block' : 'none';
+            document.getElementById('creditDetails').style.display = method === 'credit' ? 'block' : 'none';
+            
+            // Reset cash input
+            if (method === 'cash') {
+                document.getElementById('cashReceived').value = '';
+                calculateChange();
+            }
+        }
+
+        // Calculate change
+        function calculateChange() {
+            if (currentPaymentMethod !== 'cash') return;
+            
+            const total = parseFloat(document.getElementById('totalAmount').textContent.replace('$', ''));
+            const cashReceived = parseFloat(document.getElementById('cashReceived').value) || 0;
+            const change = cashReceived - total;
+            
+            if (change >= 0) {
+                document.getElementById('changeAmount').innerHTML = `Change: $${change.toFixed(2)}`;
+                document.getElementById('changeAmount').style.color = '#1cc88a';
+            } else {
+                document.getElementById('changeAmount').innerHTML = `Need: $${Math.abs(change).toFixed(2)}`;
+                document.getElementById('changeAmount').style.color = '#e74a3b';
+            }
+        }
+
+        // Add customer
+        function addCustomer() {
+            const customerName = document.getElementById('customerName').value.trim();
+            if (!customerName) {
+                alert('Please enter customer name');
+                return;
+            }
+            
+            currentCustomer = customerName;
+            document.getElementById('currentCustomer').textContent = customerName;
+            document.getElementById('customerDisplay').style.display = 'block';
+            document.getElementById('customerName').value = '';
+        }
+
+        // Complete sale
+        function completeSale() {
+            if (cart.length === 0) {
+                alert('Please add items to cart before completing sale');
+                return;
+            }
+            
+            const total = parseFloat(document.getElementById('totalAmount').textContent.replace('$', ''));
+            
+            // Validate payment
+            if (currentPaymentMethod === 'cash') {
+                const cashReceived = parseFloat(document.getElementById('cashReceived').value) || 0;
+                if (cashReceived < total) {
+                    alert(`Insufficient cash received. Total: $${total.toFixed(2)}, Received: $${cashReceived.toFixed(2)}`);
+                    return;
+                }
+            }
+            
+            // Ask for confirmation
+            const paymentMethodText = currentPaymentMethod.charAt(0).toUpperCase() + currentPaymentMethod.slice(1);
+            const customerText = currentCustomer ? ` for ${currentCustomer}` : '';
+            const confirmMessage = `Complete ${paymentMethodText} sale${customerText} for $${total.toFixed(2)}?`;
+            
+            if (confirm(confirmMessage)) {
+                // Process sale
+                processSale();
+            }
+        }
+
+        // Process sale
+        function processSale() {
+            const invoiceNumber = document.getElementById('invoiceNumber').textContent;
+            const total = parseFloat(document.getElementById('totalAmount').textContent.replace('$', ''));
+            const customer = currentCustomer || 'Walk-in Customer';
+            const paymentMethod = currentPaymentMethod;
+            
+            // Create sale record (in a real app, this would be saved to database)
+            const saleRecord = {
+                invoice: invoiceNumber,
+                customer: customer,
+                items: cart.map(item => ({
+                    name: item.name,
+                    quantity: item.quantity,
+                    price: item.price,
+                    total: item.price * item.quantity
+                })),
+                total: total,
+                paymentMethod: paymentMethod,
+                date: new Date().toISOString(),
+                cashier: document.getElementById('cashierName').textContent
+            };
+            
+            // Update stock levels
+            cart.forEach(cartItem => {
+                const medicine = medicinesData.find(m => m.id === cartItem.id);
+                if (medicine) {
+                    medicine.stock -= cartItem.quantity;
+                }
+            });
+            
+            // Show success message
+            alert(`Sale completed successfully!\nInvoice: ${invoiceNumber}\nAmount: $${total.toFixed(2)}\nPayment: ${paymentMethod}`);
+            
+            // Print receipt (simulated)
+            printReceipt(saleRecord);
+            
+            // Reset for next sale
+            resetSale();
+        }
+
+        // Print receipt
+        function printReceipt(saleRecord) {
+            // In a real app, this would connect to a printer
+            // For now, just show receipt in alert
+            let receiptText = `\n======= PHARMACY RECEIPT =======\n`;
+            receiptText += `Invoice: ${saleRecord.invoice}\n`;
+            receiptText += `Date: ${new Date(saleRecord.date).toLocaleString()}\n`;
+            receiptText += `Cashier: ${saleRecord.cashier}\n`;
+            receiptText += `Customer: ${saleRecord.customer}\n`;
+            receiptText += `--------------------------------\n`;
+            
+            saleRecord.items.forEach(item => {
+                receiptText += `${item.name}\n`;
+                receiptText += `  ${item.quantity} x $${item.price.toFixed(2)} = $${item.total.toFixed(2)}\n`;
+            });
+            
+            receiptText += `--------------------------------\n`;
+            receiptText += `Total: $${saleRecord.total.toFixed(2)}\n`;
+            receiptText += `Payment: ${saleRecord.paymentMethod.toUpperCase()}\n`;
+            receiptText += `\nThank you for your purchase!\n`;
+            receiptText += `================================\n`;
+            
+            console.log('Receipt:', receiptText);
+            // In a real app: window.print() or send to thermal printer
+        }
+
+        // Reset sale
+        function resetSale() {
+            cart = [];
+            currentCustomer = '';
+            currentPaymentMethod = 'cash';
+            
+            // Update UI
+            updateCartDisplay();
+            updatePaymentSummary();
+            loadMedicines();
+            generateInvoiceNumber();
+            document.getElementById('customerDisplay').style.display = 'none';
+            document.getElementById('customerName').value = '';
+            document.getElementById('cashReceived').value = '';
+            document.getElementById('changeAmount').innerHTML = 'Change: $0.00';
+            document.getElementById('creditNotes').value = '';
+            
+            // Reset payment method buttons
+            document.querySelectorAll('.method-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector('.method-btn').classList.add('active');
+            document.getElementById('cashPayment').style.display = 'block';
+            document.getElementById('creditDetails').style.display = 'none';
+        }
+
+        // Cancel sale
+        function cancelSale() {
+            if (cart.length === 0) {
+                resetSale();
+                return;
+            }
+            
+            if (confirm('Are you sure you want to cancel this sale? All items will be removed from cart.')) {
+                resetSale();
+            }
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = 'cashier_login.html';
+            }
+        }
+
+        // Add logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            logout();
+        });
+    </script>
+</body>
+</html>

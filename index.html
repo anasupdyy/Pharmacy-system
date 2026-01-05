@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Pharmacy System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===================== RESET & BASE STYLES ===================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* ===================== LOGIN CONTAINER ===================== */
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===================== HEADER SECTION ===================== */
+        .login-header {
+            background: linear-gradient(to right, #4e73df, #224abe);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .login-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(to right, #f6c23e, #1cc88a);
+        }
+
+        .logo {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .login-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .login-header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        /* ===================== FORM SECTION ===================== */
+        .login-form {
+            padding: 40px 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #5a5c69;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6e707e;
+            font-size: 1.1rem;
+        }
+
+        .input-with-icon input {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 2px solid #e3e6f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: #f8f9fc;
+        }
+
+        .input-with-icon input:focus {
+            outline: none;
+            border-color: #4e73df;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1);
+        }
+
+        .input-with-icon input.error {
+            border-color: #e74a3b;
+            background: #fdf6f6;
+        }
+
+        .input-with-icon input.success {
+            border-color: #1cc88a;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6e707e;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 5px;
+        }
+
+        .password-toggle:hover {
+            color: #4e73df;
+        }
+
+        .error-message {
+            color: #e74a3b;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* ===================== REMEMBER & FORGOT ===================== */
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #5a5c69;
+            font-size: 0.9rem;
+        }
+
+        .remember-me input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #4e73df;
+            cursor: pointer;
+        }
+
+        .forgot-password {
+            color: #4e73df;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .forgot-password:hover {
+            color: #224abe;
+            text-decoration: underline;
+        }
+
+        /* ===================== LOGIN BUTTON ===================== */
+        .login-button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(to right, #4e73df, #224abe);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .login-button:hover {
+            background: linear-gradient(to right, #3e63cf, #123aae);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(78, 115, 223, 0.3);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        .login-button.loading {
+            opacity: 0.8;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ===================== ROLE SELECTION ===================== */
+        .role-selection {
+            margin-bottom: 25px;
+        }
+
+        .role-selection h3 {
+            color: #5a5c69;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .role-options {
+            display: flex;
+            gap: 15px;
+        }
+
+        .role-option {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e3e6f0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9fc;
+        }
+
+        .role-option:hover {
+            border-color: #4e73df;
+            background: white;
+        }
+
+        .role-option.active {
+            border-color: #4e73df;
+            background: #4e73df;
+            color: white;
+        }
+
+        .role-option i {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .role-option span {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* ===================== SEPARATOR ===================== */
+        .separator {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: #6e707e;
+            font-size: 0.9rem;
+        }
+
+        .separator::before,
+        .separator::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e3e6f0;
+        }
+
+        .separator span {
+            padding: 0 15px;
+        }
+
+        /* ===================== SWITCH USER ===================== */
+        .switch-user {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e3e6f0;
+        }
+
+        .switch-user p {
+            color: #5a5c69;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .switch-user a {
+            color: #4e73df;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .switch-user a:hover {
+            color: #224abe;
+            text-decoration: underline;
+        }
+
+        /* ===================== FOOTER ===================== */
+        .login-footer {
+            background: #f8f9fc;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #e3e6f0;
+        }
+
+        .login-footer p {
+            color: #6e707e;
+            font-size: 0.85rem;
+        }
+
+        .version {
+            color: #4e73df;
+            font-weight: 600;
+        }
+
+        /* ===================== ALERTS ===================== */
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .alert-success {
+            background: #d1f7e5;
+            color: #0f5132;
+            border: 1px solid #badbcc;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        /* ===================== RESPONSIVE DESIGN ===================== */
+        @media (max-width: 480px) {
+            .login-container {
+                max-width: 100%;
+            }
+
+            .login-header {
+                padding: 30px 20px;
+            }
+
+            .login-form {
+                padding: 30px 20px;
+            }
+
+            .remember-forgot {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .role-options {
+                flex-direction: column;
+            }
+        }
+
+        /* ===================== DEMO CREDENTIALS ===================== */
+        .demo-credentials {
+            background: #f8f9fc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #4e73df;
+        }
+
+        .demo-credentials h4 {
+            color: #5a5c69;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .demo-credentials .credential-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+
+        .demo-credentials .label {
+            color: #6e707e;
+            font-weight: 500;
+        }
+
+        .demo-credentials .value {
+            color: #4e73df;
+            font-weight: 600;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Header Section -->
+        <div class="login-header">
+            <div class="logo">
+                <i class="fas fa-clinic-medical"></i>
+            </div>
+            <h1>Pharmacy Management System</h1>
+            <p>Admin Login Portal</p>
+        </div>
+
+        <!-- Alerts Section -->
+        <div id="alertBox" class="alert" style="display: none;">
+            <i class="fas fa-info-circle"></i> <span id="alertMessage"></span>
+        </div>
+
+        <!-- Form Section -->
+        <div class="login-form">
+            <!-- Role Selection -->
+            <div class="role-selection">
+                <h3>Select Login Type</h3>
+                <div class="role-options">
+                    <div class="role-option active" id="adminOption">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Admin</span>
+                    </div>
+                    <div class="role-option" id="cashierOption">
+                        <i class="fas fa-user-tie"></i>
+                        <span>Cashier</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                    </div>
+                    <div class="error-message" id="usernameError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                        <button type="button" class="password-toggle" id="togglePassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="error-message" id="passwordError"></div>
+                </div>
+
+                <div class="remember-forgot">
+                    <label class="remember-me">
+                        <input type="checkbox" id="rememberMe" name="rememberMe">
+                        <span>Remember me</span>
+                    </label>
+                    <a href="#" class="forgot-password" id="forgotPassword">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="login-button" id="loginButton">
+                    <span id="buttonText">Login</span>
+                    <div class="spinner" id="loginSpinner" style="display: none;"></div>
+                </button>
+            </form>
+
+            <!-- Demo Credentials -->
+            <div class="demo-credentials">
+                <h4><i class="fas fa-key"></i> Demo Credentials</h4>
+                <div class="credential-item">
+                    <span class="label">Admin:</span>
+                    <span class="value">admin / admin123</span>
+                </div>
+                <div class="credential-item">
+                    <span class="label">Cashier:</span>
+                    <span class="value">cashier / cashier123</span>
+                </div>
+            </div>
+
+            <!-- Separator -->
+            <div class="separator">
+                <span>or</span>
+            </div>
+
+            <!-- Switch User -->
+            <div class="switch-user">
+                <p>Not an admin? <a href="#" id="switchToCashier">Switch to Cashier Login</a></p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="login-footer">
+            <p>&copy; 2024 Pharmacy Management System. <span class="version">v2.1.0</span></p>
+            <p>Secure login protected by encryption</p>
+        </div>
+    </div>
+
+    <script>
+        // ===================== INITIALIZATION =====================
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeLoginPage();
+            setupEventListeners();
+            checkRememberedUser();
+        });
+
+        // ===================== VARIABLES =====================
+        let currentRole = 'admin'; // Default role
+
+        // Demo credentials database
+        const userDatabase = {
+            admin: [
+                { username: 'admin', password: 'admin123', name: 'System Administrator', email: 'admin@pharmacy.com' },
+                { username: 'superadmin', password: 'super123', name: 'Super Admin', email: 'super@pharmacy.com' },
+                { username: 'manager', password: 'manager123', name: 'Store Manager', email: 'manager@pharmacy.com' }
+            ],
+            cashier: [
+                { username: 'cashier', password: 'cashier123', name: 'Cashier User', email: 'cashier@pharmacy.com' },
+                { username: 'cashier1', password: 'cashier456', name: 'Ahmed Ali', email: 'ahmed@pharmacy.com' },
+                { username: 'cashier2', password: 'cashier789', name: 'Fatima Hassan', email: 'fatima@pharmacy.com' }
+            ]
+        };
+
+        // ===================== INITIALIZATION FUNCTIONS =====================
+        function initializeLoginPage() {
+            // Set focus to username field
+            document.getElementById('username').focus();
+            
+            // Check URL parameters for role
+            const urlParams = new URLSearchParams(window.location.search);
+            const roleParam = urlParams.get('role');
+            
+            if (roleParam === 'cashier') {
+                switchToCashier();
+            }
+        }
+
+        function setupEventListeners() {
+            // Form submission
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            
+            // Password toggle
+            document.getElementById('togglePassword').addEventListener('click', togglePasswordVisibility);
+            
+            // Role selection
+            document.getElementById('adminOption').addEventListener('click', () => switchRole('admin'));
+            document.getElementById('cashierOption').addEventListener('click', () => switchRole('cashier'));
+            
+            // Forgot password
+            document.getElementById('forgotPassword').addEventListener('click', handleForgotPassword);
+            
+            // Switch user link
+            document.getElementById('switchToCashier').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (currentRole === 'admin') {
+                    switchToCashier();
+                } else {
+                    switchRole('admin');
+                }
+            });
+            
+            // Input validation on blur
+            document.getElementById('username').addEventListener('blur', validateUsername);
+            document.getElementById('password').addEventListener('blur', validatePassword);
+            
+            // Clear errors on input
+            document.getElementById('username').addEventListener('input', clearError);
+            document.getElementById('password').addEventListener('input', clearError);
+            
+            // Enter key to submit
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.target.matches('button')) {
+                    handleLogin(e);
+                }
+            });
+        }
+
+        function checkRememberedUser() {
+            const rememberedUser = localStorage.getItem('rememberedUser');
+            const rememberedRole = localStorage.getItem('rememberedRole');
+            
+            if (rememberedUser && rememberedRole) {
+                document.getElementById('username').value = rememberedUser;
+                document.getElementById('rememberMe').checked = true;
+                
+                if (rememberedRole !== currentRole) {
+                    switchRole(rememberedRole);
+                }
+            }
+        }
+
+        // ===================== ROLE MANAGEMENT =====================
+        function switchRole(role) {
+            currentRole = role;
+            
+            // Update UI
+            document.getElementById('adminOption').classList.toggle('active', role === 'admin');
+            document.getElementById('cashierOption').classList.toggle('active', role === 'cashier');
+            
+            // Update header text
+            const header = document.querySelector('.login-header h1');
+            const subHeader = document.querySelector('.login-header p');
+            
+            if (role === 'admin') {
+                header.textContent = 'Pharmacy Management System';
+                subHeader.textContent = 'Admin Login Portal';
+                document.getElementById('switchToCashier').innerHTML = 'Switch to Cashier Login';
+            } else {
+                header.textContent = 'Cashier Portal';
+                subHeader.textContent = 'Employee Login';
+                document.getElementById('switchToCashier').innerHTML = 'Switch to Admin Login';
+            }
+            
+            // Clear form
+            clearForm();
+            showAlert(`Switched to ${role} login`, 'info');
+        }
+
+        function switchToCashier() {
+            switchRole('cashier');
+        }
+
+        // ===================== FORM FUNCTIONS =====================
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            
+            // Validate inputs
+            if (!validateUsername() || !validatePassword()) {
+                return;
+            }
+            
+            // Show loading state
+            setLoadingState(true);
+            
+            // Simulate API call delay (qabasho yar oo 1 sec ah)
+            setTimeout(() => {
+                authenticateUser(username, password, rememberMe);
+            }, 1000);
+        }
+
+        function authenticateUser(username, password, rememberMe) {
+            const users = userDatabase[currentRole];
+            const user = users.find(u => u.username === username && u.password === password);
+            
+            if (user) {
+                // Successful login
+                if (rememberMe) {
+                    localStorage.setItem('rememberedUser', username);
+                    localStorage.setItem('rememberedRole', currentRole);
+                } else {
+                    localStorage.removeItem('rememberedUser');
+                    localStorage.removeItem('rememberedRole');
+                }
+                
+                // Store user data in session
+                sessionStorage.setItem('currentUser', JSON.stringify({
+                    username: user.username,
+                    name: user.name,
+                    email: user.email,
+                    role: currentRole,
+                    loginTime: new Date().toISOString()
+                }));
+                
+                showAlert(`Welcome back, ${user.name}!`, 'success');
+                
+                // REDIRECT TOOS AH - LAGUMA DHEERAYN
+                // Haddii uu yahay admin, si toos admin dashboard loo geeyo
+                // Haddii uu yahay cashier, si toos cashier dashboard loo geeyo
+                
+                if (currentRole === 'admin') {
+                    // Si toos admin dashboard loo geeyo
+                    window.location.href = 'Dashboard.html';
+                } else {
+                    // Si toos cashier dashboard loo geeyo
+                    window.location.href = 'Dashboard_Cashier.html';
+                }
+                
+            } else {
+                // Failed login
+                setLoadingState(false);
+                showAlert('Invalid username or password. Please try again.', 'error');
+                
+                // Shake animation for error
+                document.getElementById('loginForm').style.animation = 'shake 0.5s';
+                setTimeout(() => {
+                    document.getElementById('loginForm').style.animation = '';
+                }, 500);
+                
+                // Add CSS for shake animation
+                if (!document.querySelector('#shakeStyle')) {
+                    const style = document.createElement('style');
+                    style.id = 'shakeStyle';
+                    style.textContent = `
+                        @keyframes shake {
+                            0%, 100% { transform: translateX(0); }
+                            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+                            20%, 40%, 60%, 80% { transform: translateX(5px); }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.querySelector('#togglePassword i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.className = 'fas fa-eye';
+            }
+        }
+
+        function handleForgotPassword(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            
+            if (!username) {
+                showAlert('Please enter your username first to reset password.', 'info');
+                document.getElementById('username').focus();
+                return;
+            }
+            
+            showAlert(`Password reset instructions sent to ${currentRole} email. Check your inbox.`, 'success');
+            
+            // Simulate sending reset email
+            setTimeout(() => {
+                showAlert('If you don\'t receive an email, please contact system administrator.', 'info');
+            }, 3000);
+        }
+
+        // ===================== VALIDATION FUNCTIONS =====================
+        function validateUsername() {
+            const username = document.getElementById('username').value.trim();
+            const errorElement = document.getElementById('usernameError');
+            
+            if (!username) {
+                showError('username', 'Username is required');
+                return false;
+            }
+            
+            if (username.length < 3) {
+                showError('username', 'Username must be at least 3 characters');
+                return false;
+            }
+            
+            clearError('username');
+            return true;
+        }
+
+        function validatePassword() {
+            const password = document.getElementById('password').value;
+            const errorElement = document.getElementById('passwordError');
+            
+            if (!password) {
+                showError('password', 'Password is required');
+                return false;
+            }
+            
+            if (password.length < 6) {
+                showError('password', 'Password must be at least 6 characters');
+                return false;
+            }
+            
+            clearError('password');
+            return true;
+        }
+
+        function showError(field, message) {
+            const input = document.getElementById(field);
+            const errorElement = document.getElementById(field + 'Error');
+            
+            input.classList.add('error');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+
+        function clearError(field = null) {
+            if (field) {
+                const input = document.getElementById(field);
+                const errorElement = document.getElementById(field + 'Error');
+                
+                input.classList.remove('error');
+                errorElement.style.display = 'none';
+            } else {
+                // Clear all errors
+                document.querySelectorAll('.error-message').forEach(el => {
+                    el.style.display = 'none';
+                });
+                document.querySelectorAll('input').forEach(el => {
+                    el.classList.remove('error');
+                });
+            }
+        }
+
+        // ===================== UI HELPER FUNCTIONS =====================
+        function setLoadingState(isLoading) {
+            const button = document.getElementById('loginButton');
+            const buttonText = document.getElementById('buttonText');
+            const spinner = document.getElementById('loginSpinner');
+            
+            if (isLoading) {
+                button.classList.add('loading');
+                button.disabled = true;
+                buttonText.textContent = 'Logging in...';
+                spinner.style.display = 'block';
+            } else {
+                button.classList.remove('loading');
+                button.disabled = false;
+                buttonText.textContent = 'Login';
+                spinner.style.display = 'none';
+            }
+        }
+
+        function showAlert(message, type = 'info') {
+            const alertBox = document.getElementById('alertBox');
+            const alertMessage = document.getElementById('alertMessage');
+            
+            // Set message and type
+            alertMessage.textContent = message;
+            alertBox.className = `alert alert-${type}`;
+            
+            // Set icon based on type
+            let icon = 'fa-info-circle';
+            if (type === 'success') icon = 'fa-check-circle';
+            if (type === 'error') icon = 'fa-exclamation-circle';
+            
+            alertMessage.innerHTML = `<i class="fas ${icon}"></i> ${message}`;
+            
+            // Show alert
+            alertBox.style.display = 'block';
+            
+            // Auto-hide after 5 seconds for success/info messages
+            if (type !== 'error') {
+                setTimeout(() => {
+                    alertBox.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('loginForm').reset();
+            clearError();
+            document.getElementById('alertBox').style.display = 'none';
+        }
+
+        // ===================== SECURITY FEATURES =====================
+        // Simulate failed login attempts tracking
+        let failedAttempts = 0;
+        
+        function trackFailedAttempt() {
+            failedAttempts++;
+            
+            if (failedAttempts >= 3) {
+                showAlert('Too many failed attempts. Please try again in 5 minutes.', 'error');
+                document.getElementById('loginButton').disabled = true;
+                
+                setTimeout(() => {
+                    document.getElementById('loginButton').disabled = false;
+                    failedAttempts = 0;
+                    showAlert('You can try logging in again.', 'info');
+                }, 300000); // 5 minutes
+            }
+        }
+
+        // ===================== DEMO MODE =====================
+        // Quick login for demo purposes
+        function demoLogin(role, username, password) {
+            document.getElementById('username').value = username;
+            document.getElementById('password').value = password;
+            
+            if (role !== currentRole) {
+                switchRole(role);
+            }
+            
+            // Trigger login after short delay
+            setTimeout(() => {
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }, 500);
+        }
+
+        // Auto fill demo credentials
+        function autoFillDemo() {
+            if (currentRole === 'admin') {
+                document.getElementById('username').value = 'admin';
+                document.getElementById('password').value = 'admin123';
+            } else {
+                document.getElementById('username').value = 'cashier';
+                document.getElementById('password').value = 'cashier123';
+            }
+        }
+
+        // Add auto-fill button for testing (optional)
+        function addAutoFillButton() {
+            const autoFillBtn = document.createElement('button');
+            autoFillBtn.textContent = 'Auto-fill Demo';
+            autoFillBtn.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                padding: 10px 20px;
+                background: #f6c23e;
+                color: #000;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: bold;
+                z-index: 100;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            `;
+            autoFillBtn.onclick = () => {
+                autoFillDemo();
+                showAlert('Demo credentials filled. Click Login to continue.', 'info');
+            };
+            document.body.appendChild(autoFillBtn);
+        }
+
+        // Uncomment to enable auto-fill button
+        // addAutoFillButton();
+    </script>
+</body>
+</html>
